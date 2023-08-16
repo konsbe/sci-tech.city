@@ -1,0 +1,245 @@
+.boxIcon {
+  display: "flex";
+  flex-direction: "column";
+  align-items: "center";
+}
+.boxSide {
+  display: "flex";
+  flex-direction: "column";
+}
+.cubeContainer {
+  opacity: 0.7;
+  display: flex;
+  text-align: center;
+  box-shadow: 0 18px 40px 5px rgba(0, 0, 0, 0.4);
+  perspective: 800px;
+  backface-visibility: hidden;
+}
+.arrowRight {
+  position: absolute;
+  top: 90px;
+  right: 0px;
+}
+.arrowLeft {
+  position: absolute;
+  top: 90px;
+  left: 0px;
+}
+.arrowDown {
+  position: absolute;
+  bottom: 0px;
+  left: 100px;
+}
+.arrowUp {
+  position: absolute;
+  top: 0px;
+  left: 100px;
+}
+.arrowRight:hover {
+  color: rgba(224, 255, 49, 0.6);
+}
+.arrowRight:active {
+  color: rgba(49, 255, 49, 0.6);
+}
+.arrowLeft:hover {
+  color: rgba(224, 255, 49, 0.6);
+}
+.arrowLeft:active {
+  color: rgba(49, 255, 49, 0.6);
+}
+.arrowUp:hover {
+  color: rgba(224, 255, 49, 0.6);
+}
+.arrowUp:active {
+  color: rgba(49, 255, 49, 0.6);
+}
+.arrowDown:hover {
+  color: rgba(224, 255, 49, 0.6);
+}
+.arrowDown:active {
+  color: rgba(49, 255, 49, 0.6);
+}
+
+.photoCube {
+  transform-style: preserve-3d;
+  width: 220px;
+  height: 200px;
+  transform: rotateY(18deg) rotateX(8deg);
+  transition: transform 2s ease-in-out;
+}
+.modalCube {
+  transform-style: preserve-3d;
+  width: 220px;
+  height: 200px;
+  transform: rotateY(0deg) rotateX(0deg);
+  transition: transform 2s ease-in-out;
+  width: 100%;
+}
+
+.rotate {
+  transform: rotateY(-108deg);
+}
+.rotate2 {
+  transform: rotateY(-198deg);
+}
+.rotate3 {
+  transform: rotateY(-288deg);
+}
+.rotate4 {
+  transform: rotateY(18deg);
+}
+.rotate5 {
+  transform: rotateX(-108deg);
+}
+.rotate6 {
+  transform: rotateX(108deg);
+}
+.rotate7 {
+  transform: rotateY(108deg);
+}
+.rotate8 {
+  transform: rotateY(198deg);
+}
+.rotate9 {
+  transform: rotateY(270deg);
+}
+
+.rotateModal {
+  transform: rotateY(-90deg);
+}
+.rotateModal2 {
+  transform: rotateY(-180deg);
+}
+.rotateModal3 {
+  transform: rotateY(-270deg);
+}
+.rotateModal4 {
+  transform: rotateY(0deg);
+}
+.rotateModal5 {
+  transform: rotateX(-90deg);
+}
+.rotateModal6 {
+  transform: rotateX(90deg);
+}
+.rotateModal7 {
+  transform: rotateY(90deg);
+}
+.rotateModal8 {
+  transform: rotateY(180deg);
+}
+.rotateModal9 {
+  transform: rotateY(270deg);
+}
+
+.front,
+.back,
+.frontToModal,
+.backToModal,
+.rightToModal,
+.leftToModal,
+.right,
+.left {
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: absolute;
+}
+.bottom,
+.top {
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: absolute;
+  width: 220px;
+  height: 220px;
+}
+.front {
+  background: no-repeat center center/cover;
+  transform: translateZ(7em);
+  background-color: red;
+}
+.frontToModal {
+  background: no-repeat center center/cover;
+  transform: translateZ(13em);
+  background-color: red;
+}
+
+.right {
+  background: no-repeat center center/cover;
+  transform: rotateY(90deg) translateZ(7em);
+  background-color: green;
+}
+.rightToModal {
+  background: no-repeat center center/cover;
+  transform: rotateY(90deg) translateZ(13em);
+  background-color: green;
+}
+
+.back {
+  background: no-repeat center center/cover;
+  transform: translateZ(-7em);
+  background-color: blue;
+}
+.backToModal {
+  background: no-repeat center center/cover;
+  transform: translateZ(-13em) rotateY(180deg);
+  background-color: blue;
+}
+.back span {
+  transform: rotateY(90deg);
+}
+.backToModal span {
+  transform: rotateY(90deg);
+}
+.left {
+  background: no-repeat center center/cover;
+  transform: rotateY(-90deg) translateZ(7em);
+  background-color: pink;
+}
+.leftToModal {
+  background: no-repeat center center/cover;
+  transform: rotateY(-90deg) translateZ(13em);
+  background-color: pink;
+}
+.top {
+  background: no-repeat center center/cover;
+  transform: rotateX(90deg) rotateY(0deg) translateZ(7em);
+  background-color: aqua;
+}
+.bottom {
+  background: no-repeat center center/cover;
+  transform: rotateX(-90deg) rotateY(0deg) translateZ(5.8em);
+  background-color: blueviolet;
+}
+
+.upDownModal {
+  display: none;
+}
+
+@media screen and (min-width: 601px) {
+  .cubeContainerModal {
+    opacity: 0.7;
+    display: flex;
+    width: 200%;
+    text-align: center;
+    box-shadow: 0 18px 40px 5px rgba(0, 0, 0, 0.4);
+    perspective: 800px;
+    backface-visibility: hidden;
+  }
+}
+@media screen and (max-width: 599px) {
+  .cubeContainerModal {
+    opacity: 0.7;
+    display: flex;
+    width: 130%;
+    text-align: center;
+    box-shadow: 0 18px 40px 5px rgba(0, 0, 0, 0.4);
+    perspective: 800px;
+    backface-visibility: hidden;
+  }
+
+  .cubeContainer {
+    margin-left: -1rem;
+  }
+}

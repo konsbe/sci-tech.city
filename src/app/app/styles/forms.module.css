@@ -1,0 +1,9 @@
+.formtext {
+  text-align: center;
+  color: rgb(255, 255, 255);
+}
+
+span > .linkText {
+  color: rgba(0, 225, 255, 0.9);
+  text-decoration: underline;
+}

@@ -1,0 +1,9 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    background-color: rgba(240, 247, 193, 0.1);
+  }

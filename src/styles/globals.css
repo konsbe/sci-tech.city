@@ -10,8 +10,6 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  overflow: hidden; /* Hide scrollbars */
-
 }
 @keyframes example {
   from {
@@ -31,101 +29,4 @@ a {
 
 * {
   box-sizing: border-box;
-}
-.body-container {
-  width: 100%;
-  margin-top: 3rem;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20rem;
-
-}
-.form-container {
-  width: 368px;
-}
-.body-container > .parallax-sidebar {
-  display: none;
-}
-
-.carousel-item {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 400px;
-  margin-top: 2rem;
-  opacity: 0;
-  transition: all 0.5s ease-in-out;
-}
-
-.carousel-item.active {
-  opacity: 1;
-}
-
-.carousel-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transform: translateY(-100%);
-}
-
-.carousel-item.active {
-  transform: translateY(0);
-}
-
-.carousel-item.previous {
-  transform: translateY(-100%);
-}
-
-.carousel-item.next {
-  transform: translateY(100%);
-}
-
-.scrollbar-container {
-  height: 400px;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  color: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.4) 0%,
-    rgba(255, 255, 255, 0.4) 10%,
-    rgba(255, 255, 255, 0.4) 90%,
-    rgba(255, 255, 255, 0.4) 100%
-  );
-  /* background-attachment: fixed; */
-}
-
-.scrollbar-content {
-  opacity: 0.8;
-  padding-right: 10px; /* This is to make room for the scrollbar */
-}
-
-.scrollbar-container::-webkit-scrollbar {
-  width: 3px;
-}
-
-.scrollbar-container::-webkit-scrollbar-thumb {
-  background-color: #c27abe;
-  border-radius: 5px;
-}
-
-.scrollbar-container::-webkit-scrollbar-track {
-  background-color: rgba(194, 122, 190, 0.2);
-  border-radius: 5px;
-}
-scrollbar-container > p {
-  margin: 0;
-  padding: 10px;
-  background-position: bottom;
-  background-size: 100% 50px;
-}
-.scroll-text {
-  opacity: 0.8;
-}
-.textfield-root .MuiOutlinedInput-notchedOutline {
-  border-color: #ffffff;
-}
-
-.textfield-input::placeholder:not(:focus) {
-  color: #ffffff;
 }
