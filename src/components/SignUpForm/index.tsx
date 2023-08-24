@@ -20,6 +20,15 @@ const initialState = {
   confirmPassword: "",
   profilePicture: "",
 };
+type UserInfo = {
+  userName: string;
+  email: string;
+  birthDay: string;
+  password: string;
+  confirmPassword: string;
+  profilePicture: string | ArrayBuffer | null;
+};
+
 const fetchCharacters = async (page: number) => {
   try {
     const response = await fetch(
@@ -37,16 +46,13 @@ function SignUpForm() {
   const [data, setData] = useState<any>();
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [formData, setFormData] = useState(initialState);
+  const [formData, setFormData] = useState<UserInfo>(initialState);
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(true);
 
   const handleSubmit = async (e: React.SyntheticEvent | React.FormEvent) => {
-    if (!formData.profilePicture) {
-      setFormData({ ...formData, profilePicture: data.image });
-    }
     e.preventDefault();
-    // if (formData.password === formData.confirmPassword) {
+
     if (await hashCompareFunction(confirmPassword, formData.password)) {
       console.log(formData);
     } else {
@@ -106,22 +112,39 @@ function SignUpForm() {
     }
   };
 
+  const imageToBase64 = async (data: any) => {
+    const imageResponse = await fetch(data.image);
+    const imageBlob = await imageResponse.blob();
+    const reader = new FileReader();
+    reader.readAsDataURL(imageBlob);
+    reader.onloadend = () => {
+      const base64Image = reader.result;
+      setFormData({ ...formData, profilePicture: base64Image });
+    };
+  };
+
   useEffect(() => {
     fetchCharacters(page).then((result) => {
       setData(result);
+      imageToBase64(result);
       setLoading(false);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   return (
     <>
       <div style={{ marginBottom: 20 }}>
-        {loading ? <span>Loading...</span> :<Profile
-          name={data?.name}
-          image={
-            formData.profilePicture ? formData.profilePicture : data?.image
-          }
-        />}
+        {loading ? (
+          <span>Loading...</span>
+        ) : (
+          <Profile
+            name={data?.name}
+            image={
+              formData.profilePicture ? formData.profilePicture : data?.image
+            }
+          />
+        )}
       </div>
       <Container>
         <ButtonGroup>
@@ -163,7 +186,6 @@ function SignUpForm() {
             placeholder="First Name"
             variant="standard"
             value={formData.userName}
-            focused
             sx={{ width: 200, input: { color: "white" } }}
             onChange={handleChange}
           />

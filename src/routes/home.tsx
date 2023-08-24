@@ -51,12 +51,12 @@ export default function Home() {
         <div className={styles.homeDescription}>
           <div className="scrollbar-container">
             <div className="scrollbar-content">
-              <p className="scroll-text">{homeOptions[0]}</p>
-              <p className="scroll-text">{homeOptions[1]}</p>
-              <p className="scroll-text">{homeOptions[2]}</p>
-              <p className="scroll-text">{homeOptions[3]}</p>
-              <p className="scroll-text">{homeOptions[4]}</p>
-              <p className="scroll-text">{homeOptions[5]}</p>
+              <p className="scroll-text">{`${homeOptions[0]}`}</p>
+              <p className="scroll-text">{`${homeOptions[1]}`}</p>
+              <p className="scroll-text">{`${homeOptions[2]}`}</p>
+              <p className="scroll-text">{`${homeOptions[3]}`}</p>
+              <p className="scroll-text">{`${homeOptions[4]}`}</p>
+              <p className="scroll-text">{`${homeOptions[5]}`}</p>
             </div>
           </div>
           {/* <div
