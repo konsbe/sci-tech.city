@@ -7,6 +7,8 @@ import { Inter } from "next/font/google";
 import ErrorBoundary from "@/src/components/ErrorBoundary";
 import { Suspense } from "react";
 import Loading from "./loading";
+import { ModalProvider } from "../providers/ModalProvider";
+import { AuthProvider } from "../providers/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,9 +24,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-          <Navbar />
-          <RoutingNavLayout />
-          {children}
+        <AuthProvider>
+          <ModalProvider>
+            <Navbar />
+            <RoutingNavLayout />
+            {children}
+          </ModalProvider>
+        </AuthProvider>
       </body>
     </html>
   );

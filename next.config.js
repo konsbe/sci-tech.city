@@ -11,6 +11,7 @@ module.exports = withImages({
   },
   experimental: {
     appDir: true,
+    serverActions: true,
   },
 });
 // module.exports = {

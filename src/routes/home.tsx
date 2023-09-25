@@ -1,13 +1,17 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "@/src/styles/Home.module.css";
 import Cube from "@/src/components/Cube";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import MailIcon from "@mui/icons-material/Mail";
 import { homeOptions } from "./homeOptions";
+import { createCookie } from "../app/actions";
 
 export default function Home() {
+  useEffect(() => {
+    createCookie(null);
+  }, []);
   const [currentIndex, setCurrentIndex] = useState(0);
   return (
     <div className="body-container">

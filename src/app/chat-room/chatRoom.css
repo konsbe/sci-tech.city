@@ -1,0 +1,75 @@
+.chat-room-container {
+  background-color: rgb(230, 255, 202);
+  height: 600px;
+  width: 80%;
+  display: flex;
+}
+
+.chat-room-sidebar {
+  width: 20%;
+  border: rgba(109, 255, 116, 0.589);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.chat-room-header {
+  width: 100%;
+  border: 1px solid rgb(158, 250, 150);
+  background-color: aliceblue;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  margin: 2px 0px 2px 0px;
+}
+.chat-container {
+  width: 80%;
+  border: 1px solid black;
+  background-color: aliceblue;
+}
+.chat-inbox {
+  width: 100%;
+  height: 75%;
+  border: 1px solid black;
+  background-color: aliceblue;
+}
+
+.chat-message {
+  border: 1px solid black;
+  background-color: aliceblue;
+}
+.form-input {
+  width: 100%;
+  height: 100%;
+}
+.chat-form {
+  width: 100%;
+  height: 25%;
+  /* border: 1px solid black; */
+  background-color: white;
+  display: flex;
+  align-items: center;
+}
+.chat-button {
+  width: 10%;
+  height: 80%;
+  background-color: aliceblue;
+  border: 1px solid black;
+  margin: 4px;
+}
+.create-room {
+  width: 100%;
+  margin: 10px 0px 2px 0px;
+}
+
+.create-room-modal{
+  height: 400px;
+  width: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+}
