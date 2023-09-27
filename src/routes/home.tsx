@@ -9,9 +9,9 @@ import { homeOptions } from "./homeOptions";
 import { createCookie } from "../app/actions";
 
 export default function Home() {
-  useEffect(() => {
-    createCookie(null);
-  }, []);
+  // useEffect(() => {
+  //   createCookie(null);
+  // }, []);
   const [currentIndex, setCurrentIndex] = useState(0);
   return (
     <div className="body-container">

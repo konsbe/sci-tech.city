@@ -1,14 +1,18 @@
 import { createContext, useState } from "react";
 
 const IContextUserState: IContextProps = {
-  userName: "",
-  userEmail: "",
+  firstName: "",
+  lastName: "",
+  email: "",
+  username: "",
   userId: "",
 };
 
 type IContextProps = {
-  userName: string;
-  userEmail: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
   userId: string;
 };
 export const LoginContext = createContext<Partial<IContextProps>>({});

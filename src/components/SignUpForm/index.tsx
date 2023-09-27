@@ -11,6 +11,7 @@ import FormControl from "@mui/material/FormControl";
 import styles from "@/src/styles/Form.module.css";
 import Profile from "./Profile";
 import { hashCompareFunction, hashFunction } from "@/src/utils/bcrypt";
+import { createUser } from "@/src/app/actions";
 
 const initialState = {
   userName: "",
@@ -54,7 +55,8 @@ function SignUpForm() {
     e.preventDefault();
 
     if (await hashCompareFunction(confirmPassword, formData.password)) {
-      console.log(formData);
+      const sub = await createUser(formData)
+      return sub
     } else {
       alert("password is not the same");
     }
@@ -93,7 +95,6 @@ function SignUpForm() {
     if (!formData.profilePicture) {
       setFormData({ ...formData, profilePicture: data.image });
     }
-    console.log("DirectionsCarRounded", formData);
   };
 
   const changeCharacter = (stm: string) => {

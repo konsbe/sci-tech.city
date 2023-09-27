@@ -2,25 +2,35 @@
 import React, { createContext, useState } from "react";
 import { createCookie } from "../app/actions";
 
-const ModalContext = createContext<any>(null);
-
-const AuthProvider = ({ children }: any) => {
-  const [hasCookie, setHasCookie] = useState(false);
-
-  const cookieFactory = () => {
-    createCookie(null);
-    setHasCookie(false);
-  };
-
-  const modalValue = {
-    hasCookie,
-    setHasCookie,
-    cookieFactory,
-  };
-
-  return (
-    <ModalContext.Provider value={modalValue}>{children}</ModalContext.Provider>
-  );
+const IContextUserState: IContextProps = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  username: "",
+  userId: "",
 };
 
-export { ModalContext, AuthProvider };
+type IContextProps = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  userId: string;
+};
+
+const AuthContext = createContext<Partial<IContextProps>>({});
+
+const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }: any) => {
+
+  const [userContextData, setUserContextData] =
+    useState<IContextProps>(IContextUserState);
+  
+    const state: any = {
+    userContextData,
+    setUserContextData,
+  };
+
+  return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;
+};
+
+export { AuthContext, AuthProvider };

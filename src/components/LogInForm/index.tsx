@@ -1,25 +1,24 @@
-'use client'
-import React, { useReducer, useState, useContext } from "react";
-import { LoginContext } from "../Contexts";
+"use client";
+import React, { useContext, useState } from "react";
 import ButtonForm from "../Form/ButtonForm";
 import InputForm from "../Form/InputForm";
 import { Box } from "@mui/material";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import Icon from "./icon";
 import styles from "@/src/styles/Form.module.css";
+import { login } from "@/src/app/actions";
+import { usePathname, useRouter } from "next/navigation";
+import { AuthContext } from "@/src/providers/AuthProvider";
 
 const initialState = {
-  email: "",
+  username: "",
   password: "",
 };
 
 function LoginForm(): JSX.Element {
-
-  const [data, setData] = useState<any>();
   const [formData, setFormData] = useState(initialState);
-
-  const context: any = useContext(LoginContext);
-  const { userContextData, setUserContextData } = context;
+  const router = useRouter();
+  const pathname = usePathname();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,15 +26,17 @@ function LoginForm(): JSX.Element {
 
   const handleSubmit = async (e: React.SyntheticEvent | React.FormEvent) => {
     e.preventDefault();
+    const loginUser = await login(formData);
+    return loginUser?.access_token ? router.push("/") : null;
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.signUpform}>
+    <form onSubmit={handleSubmit} className="sign-up-form">
       <InputForm
-        label="email"
-        type="email"
-        name="email"
-        placeholder="example@email.com"
+        label="username"
+        type="username"
+        name="username"
+        placeholder="example@username.com"
         variant="standard"
         autoFocus
         sx={{ width: 200, input: { color: "white" } }}

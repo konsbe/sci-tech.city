@@ -129,3 +129,82 @@ scrollbar-container > p {
 .textfield-input::placeholder:not(:focus) {
   color: #ffffff;
 }
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-center-hor {
+  display: flex;
+  justify-content: center;
+}
+
+
+.flex-center-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.flex-around {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+}
+
+.flex-end-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.w-40 {
+  width: 40%;
+}
+.w-50 {
+  width: 50%;
+}
+.w-70 {
+  width: 70%;
+}
+.w-80 {
+  width: 80%;
+}
+.w-90 {
+  width: 90%;
+}
+.w-100 {
+  width: 100%;
+}
+
+.mrgT-5{
+  margin-top: 50px!important;
+}
+.mrgB-5{
+  margin-bottom: 50px;
+}
+.mrg-5{
+  margin: 50px;
+}
+.formtext {
+  text-align: center;
+  color: rgb(255, 255, 255);
+}
+span > .linkText {
+  color: rgba(0, 225, 255, 0.9);
+  text-decoration: underline;
+}
+.sign-up-form {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 10px;
+  margin: auto;
+  text-align: center;
+}
