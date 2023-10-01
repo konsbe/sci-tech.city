@@ -52,7 +52,7 @@ export const login = async (data: { username: string; password: string }) => {
   );
 
   const res: any = await response.json();
-  const parts = res.access_token.split(".");
+  const parts = res?.access_token?.split(".");
   // const header = JSON.parse(atob(parts[0]));
   const payload = JSON.parse(atob(parts[1]));
 

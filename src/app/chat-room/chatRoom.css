@@ -1,5 +1,5 @@
 .chat-room-container {
-  background-color: rgb(230, 255, 202);
+  /* background-color: rgb(230, 255, 202); */
   height: 600px;
   width: 80%;
   display: flex;
@@ -17,12 +17,20 @@
 .chat-room-header {
   width: 100%;
   border: 1px solid rgb(158, 250, 150);
-  background-color: aliceblue;
+  background-color: rgba(0, 255, 42, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
   height: 50px;
   margin: 2px 0px 2px 0px;
+  cursor: pointer;
+}
+.chat-room-header:hover {
+  cursor: pointer;
+  background-color: rgba(0, 255, 42, 0);
+  color: rgba(109, 255, 116, 0.589);
+  text-shadow: 2px 4px 4px rgba(0, 255, 42, 0.6);
+  text-shadow: 0px 0px 0px 3px rgba(0, 255, 42, 0.6);
 }
 .chat-container {
   width: 80%;

@@ -1,21 +1,19 @@
 "use client";
 import React, { useState } from "react";
 
-const ChatForm = () => {
-  const [chatMessage, setChatMessage] = useState<string>();
+const ChatForm = ({ userProps, handlePushMessage }: any) => {
 
   return (
     <div className="chat-form">
-        <textarea
-          name="chatMessage"
-          value={chatMessage}
-          className="form-input"
-          // onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          //   setChatMessage(e.target.value)
-          // }
-          
-        />
-        <button className="chat-button">Button</button>
+      <textarea
+        name="chatMessage"
+        value={userProps.messageData.message}
+        className="form-input"
+        onChange={(e: any) =>
+          userProps.setMessageData((prev:any) => {return {...prev, message: e.target.value}})
+        }
+      />
+      <button className="chat-button" onClick={() => handlePushMessage(userProps.messageData)}>Button</button>
     </div>
   );
 };
