@@ -10,7 +10,7 @@ const IContextUserState: IContextProps = {
   userId: "",
 };
 
-type IContextProps = {
+export type IContextProps = {
   firstName: string;
   lastName: string;
   email: string;

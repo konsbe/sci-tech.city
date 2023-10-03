@@ -8,16 +8,16 @@ import { getCookie } from "../app/actions";
 import Link from "next/link";
 import { AuthContext } from "../providers/AuthProvider";
 import SockJS from "sockjs-client";
-import { Client, over } from "stompjs";
 import { CompatClient, Stomp } from "@stomp/stompjs";
+import { TypeChats } from "../interfaces/chat";
 
 let stompClient: CompatClient | null = null;
 const socketURL = "http://localhost:8081/ws";
 
 export const SpaceComponent = () => {
-  const [onlineSubscribedUsers, setOnlineSubscribedUsers] = useState<any>([]);
-  const [privateChats, setPrivateChats] = useState(new Map());
-  const headers = [{ name: "User-Agent" }, { name: "User-Agent-2" }];
+  const [publicChats, setPublicChats] = useState<any[]>([]);
+  const [privateChats, setPrivateChats] = useState<TypeChats>({});
+
   const { userContextData, _ }: any = useContext(AuthContext);
   const [messageData, setMessageData] = useState({
     username: userContextData.username,
@@ -52,14 +52,13 @@ export const SpaceComponent = () => {
     }
   };
 
-  const onConnected = (dt: any) => {
+  const onConnected = () => {
     stompClient?.subscribe("/chatroom/public", onMessageReceived);
     stompClient?.subscribe(
       "/user/" + userContextData.username + "/private",
       onPrivateMessage
     );
     userJoin();
-    console.log("dt: ", dt);
   };
 
   const userJoin = () => {
@@ -78,39 +77,45 @@ export const SpaceComponent = () => {
 
   const userLeave = (username: string) => {
     let chatMessage = {
-      senderName: username,
+      senderName: userContextData.username,
       message: `...${userContextData.username} left`,
       date: new Date(),
       receiverName: "",
       status: "LEAVE",
     };
-
     // stompClient?.send("/app/chat.message", {}, JSON.stringify(chatMessage));
+    // stompClient?.send("/chatroom/public", {}, JSON.stringify(chatMessage));
     stompClient?.send("/app/chat.addUser", {}, JSON.stringify(chatMessage));
   };
 
   const onMessageReceived = (payload: any) => {
-    console.log("onMessageReceived....: ", payload);
-
     var payloadData = JSON.parse(payload.body);
-    console.log("payloadData: ", payloadData);
+    console.log("onMessageReceived....: ", payloadData);
 
     switch (payloadData.status) {
       case "JOIN":
-        console.log("JOIN: JOIN");
+        payloadData?.connctedUsers.map((entry: string) => {
+          if (!privateChats[`${entry}`]) {
+            setPrivateChats((prev) => {
+              return { ...prev, [`${entry}`]: [] };
+            });
+          }
+        });
         break;
       case "LEAVE":
         const leftUser = payloadData.senderName;
-        userLeave(payloadData.senderName);
-        setOnlineSubscribedUsers((prev: any) => [
-          prev?.filter((user: any) => user !== leftUser),
-        ]);
+        setPrivateChats((prev) => {
+          const { [`${leftUser}`]: deletedProperty, ...rest } = prev; // Use object destructuring to remove the property
+          return rest;
+        });
         break;
       case "MESSAGE":
         if (!payloadData) return;
+        setPublicChats((prev) => {
+          return [...prev, payloadData];
+        });
         break;
       default:
-        setOnlineSubscribedUsers(payloadData?.connctedUsers);
         break;
     }
   };
@@ -119,22 +124,17 @@ export const SpaceComponent = () => {
     console.log("onPrivateMessage: ", payload);
 
     var payloadData = JSON.parse(payload.body);
-    if (privateChats.get(payloadData.senderName)) {
-      privateChats.get(payloadData.senderName).push(payloadData);
-      setPrivateChats(new Map(privateChats));
-    } else {
-      let list = [];
-      list.push(payloadData);
-      privateChats.set(payloadData.senderName, list);
-      setPrivateChats(new Map(privateChats));
-    }
+
+    // setPrivateChats((prev) => {
+    //   return [...prev, payloadData];
+    // });
   };
 
   const onError = (err: any) => {
-    console.log(err);
+    console.log("err: ", err);
   };
 
-  const sendValue = (messageReceiver:string = "chat.message") => {
+  const sendValue = (messageReceiver: string = "chat.message") => {
     if (stompClient) {
       let chatMessage = {
         senderName: userContextData.username,
@@ -143,31 +143,19 @@ export const SpaceComponent = () => {
         receiverName: messageData.receiverName,
         status: "MESSAGE",
       };
-  
-      stompClient?.send(`/app/${messageReceiver}`, {}, JSON.stringify(chatMessage));
+
+      stompClient?.send(
+        `/app/${messageReceiver}`,
+        {},
+        JSON.stringify(chatMessage)
+      );
     }
   };
 
-  const sendPrivateValue = () => {
-    if (stompClient) {
-      var chatMessage = {
-        senderName: userContextData.username,
-        message: userContextData.message,
-        date: new Date(),
-        receiverName: "recieverName",
-        status: "MESSAGE",
-      };
-
-      // if (userContextData.username !== tab) {
-      //   privateChats.get(tab).push(chatMessage);
-      //   setPrivateChats(new Map(privateChats));
-      // }
-      stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage));
-      // setUserData({ ...userData, message: "" });
-    }
-  };
   const handlePushMessage = (item: any) => {
     sendValue("private.message");
+    console.log("publicChats: ", publicChats);
+
     setMessageData({ ...messageData, message: "" });
   };
 
@@ -178,6 +166,7 @@ export const SpaceComponent = () => {
       connect();
     }
   }, []);
+  console.log("privateChats: ", privateChats);
 
   return cookie ? (
     <>
@@ -185,7 +174,7 @@ export const SpaceComponent = () => {
         {/* <div>Chat-Room</div> */}
         <div className="chat-room-sidebar">
           <CreateFormButton />
-          {onlineSubscribedUsers?.map((item: string, index: number) => (
+          {Object.keys(privateChats)?.map((item: string, index: number) => (
             <div
               key={index}
               className="chat-room-header"

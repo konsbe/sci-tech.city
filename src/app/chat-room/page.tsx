@@ -1,13 +1,6 @@
 import React from "react";
 import "./chatRoom.css";
-import ChatForm from "@/src/components/Form/ChatForm";
-import ButtonForm from "@/src/components/Form/ButtonForm";
-import { Button } from "@mui/material";
-import Modal from "@/src/components/Modal";
-import CreateRoom from "@/src/components/Form/CreateRoom";
-import CreateFormButton from "@/src/components/Form/CreatRoomButton";
 import SpaceComponent from "@/src/routes/space";
-
 
 let fuck = "fuck";
 
@@ -21,3 +14,24 @@ function ChatRoom() {
 }
 
 export default ChatRoom;
+
+// const [onlineSubscribedUsers, setOnlineSubscribedUsers] = useState<string[]>([]);
+// const [privateChats, setPrivateChats] = useState<any[]>([]);
+
+// JOIN
+// setOnlineSubscribedUsers(payloadData?.connctedUsers);
+
+// setPrivateChats((prev: any) => {
+//   const keysArray = prev!.map((obj: any) => Object.keys(obj)[0]);
+//   if (keysArray!.includes(entry)) return prev; // Return the unchanged array
+//   return [...prev, { [`${entry}`]: [] }];
+// });
+
+// LEAVE
+// setOnlineSubscribedUsers((prev: string[] | []): string[] =>
+//   prev?.filter((user: string) => user !== leftUser)
+// );
+
+// setPrivateChats((prev: any) => {
+//   return prev?.filter((usr: any) => !usr.hasOwnProperty(leftUser));
+// });

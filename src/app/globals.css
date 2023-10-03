@@ -13,6 +13,13 @@ body {
   overflow: hidden; /* Hide scrollbars */
 
 }
+input:-internal-autofill-selected {
+  appearance: menulist-button;
+  background-image: none !important;
+  background-color: red !important; /* Change to the desired color */
+  color: fieldtext !important;
+}
+
 @keyframes example {
   from {
     background-color: #000000;
