@@ -25,6 +25,9 @@
   margin: 2px 0px 2px 0px;
   cursor: pointer;
 }
+.chatroom-active {
+  background-color: rgb(210, 253, 91);
+}
 .chat-room-header:hover {
   cursor: pointer;
   background-color: rgba(0, 255, 42, 0);

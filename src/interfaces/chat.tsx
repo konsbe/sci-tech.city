@@ -1,14 +1,14 @@
 export enum EnumStatus {
   LEAVE,
   MESSAGE,
-  Join,
+  JOIN,
 }
 export interface IMessage {
-  username: string;
-  receiverName: string;
-  connected: boolean;
+  senderName: string;
+  date: Date;
   message: string;
-  status: EnumStatus;
+  receiverName: string;
+  status: string;
 }
 export type TypeChat = IMessage[];
 export type IUserProps = {

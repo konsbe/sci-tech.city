@@ -9,7 +9,7 @@ import Link from "next/link";
 import { AuthContext } from "../providers/AuthProvider";
 import SockJS from "sockjs-client";
 import { CompatClient, Stomp } from "@stomp/stompjs";
-import { TypeChats } from "../interfaces/chat";
+import { EnumStatus, TypeChats } from "../interfaces/chat";
 
 let stompClient: CompatClient | null = null;
 const socketURL = "http://localhost:8081/ws";
@@ -24,7 +24,7 @@ export const SpaceComponent = () => {
     receiverName: "",
     connected: true,
     message: "",
-    status: "MESSAGE",
+    status: EnumStatus[EnumStatus.MESSAGE],
   });
 
   const [cookie, setCookie] = useState<string | null>(null);
@@ -39,7 +39,7 @@ export const SpaceComponent = () => {
   const connect = () => {
     try {
       if (userContextData.username) {
-        var socket = new SockJS(socketURL);
+        const socket = new SockJS(socketURL);
         stompClient = Stomp.over(socket);
         // stompClient.debug = () => {};
         // stompClient = over(socket);
@@ -67,7 +67,7 @@ export const SpaceComponent = () => {
       message: `...${userContextData.username} join`,
       date: new Date(),
       receiverName: "",
-      status: "JOIN",
+      status: EnumStatus[EnumStatus.JOIN],
     };
 
     // stompClient?.send("/app/chat.message", {}, JSON.stringify(chatMessage));
@@ -81,7 +81,7 @@ export const SpaceComponent = () => {
       message: `...${userContextData.username} left`,
       date: new Date(),
       receiverName: "",
-      status: "LEAVE",
+      status: EnumStatus[EnumStatus.LEAVE],
     };
     // stompClient?.send("/app/chat.message", {}, JSON.stringify(chatMessage));
     // stompClient?.send("/chatroom/public", {}, JSON.stringify(chatMessage));
@@ -89,11 +89,10 @@ export const SpaceComponent = () => {
   };
 
   const onMessageReceived = (payload: any) => {
-    var payloadData = JSON.parse(payload.body);
-    console.log("onMessageReceived....: ", payloadData);
+    const payloadData = JSON.parse(payload.body);
 
     switch (payloadData.status) {
-      case "JOIN":
+      case EnumStatus[EnumStatus.JOIN]:
         payloadData?.connctedUsers.map((entry: string) => {
           if (!privateChats[`${entry}`]) {
             setPrivateChats((prev) => {
@@ -102,18 +101,30 @@ export const SpaceComponent = () => {
           }
         });
         break;
-      case "LEAVE":
+      case EnumStatus[EnumStatus.LEAVE]:
         const leftUser = payloadData.senderName;
         setPrivateChats((prev) => {
           const { [`${leftUser}`]: deletedProperty, ...rest } = prev; // Use object destructuring to remove the property
           return rest;
         });
         break;
-      case "MESSAGE":
+      case EnumStatus[EnumStatus.MESSAGE]:
         if (!payloadData) return;
-        setPublicChats((prev) => {
-          return [...prev, payloadData];
-        });
+        const chatRoom = payloadData.senderName;
+        if (
+          privateChats[`${chatRoom}`] &&
+          userContextData.username !== privateChats[`${chatRoom}`]
+        ) {
+          setPrivateChats((prev) => {
+            return {
+              ...prev,
+              [`${chatRoom}`]: [
+                ...prev[`${chatRoom}`],
+                payloadData,
+              ],
+            };
+          });
+        }
         break;
       default:
         break;
@@ -121,13 +132,21 @@ export const SpaceComponent = () => {
   };
 
   const onPrivateMessage = (payload: any) => {
-    console.log("onPrivateMessage: ", payload);
+    const payloadData = JSON.parse(payload.body);
 
-    var payloadData = JSON.parse(payload.body);
-
-    // setPrivateChats((prev) => {
-    //   return [...prev, payloadData];
-    // });
+    if (!payloadData) return;
+    const chatRoom = payloadData.senderName;
+    if (privateChats[`${chatRoom}`]) {
+      setPrivateChats((prev) => {
+        return {
+          ...prev,
+          [`${chatRoom}`]: [
+            ...prev[`${chatRoom}`],
+            payloadData,
+          ],
+        };
+      });
+    }
   };
 
   const onError = (err: any) => {
@@ -141,8 +160,19 @@ export const SpaceComponent = () => {
         date: new Date(),
         message: messageData.message,
         receiverName: messageData.receiverName,
-        status: "MESSAGE",
+        status: EnumStatus[EnumStatus.MESSAGE],
       };
+      if (privateChats[`${chatMessage.receiverName}`]) {
+        setPrivateChats((prev) => {
+          return {
+            ...prev,
+            [`${chatMessage.receiverName}`]: [
+              ...prev[`${chatMessage.receiverName}`],
+              chatMessage,
+            ],
+          };
+        });
+      }
 
       stompClient?.send(
         `/app/${messageReceiver}`,
@@ -154,7 +184,6 @@ export const SpaceComponent = () => {
 
   const handlePushMessage = (item: any) => {
     sendValue("private.message");
-    console.log("publicChats: ", publicChats);
 
     setMessageData({ ...messageData, message: "" });
   };
@@ -165,8 +194,7 @@ export const SpaceComponent = () => {
     if (typeof window !== "undefined") {
       connect();
     }
-  }, []);
-  console.log("privateChats: ", privateChats);
+  }, [cookie]);
 
   return cookie ? (
     <>
@@ -177,7 +205,7 @@ export const SpaceComponent = () => {
           {Object.keys(privateChats)?.map((item: string, index: number) => (
             <div
               key={index}
-              className="chat-room-header"
+              className={`chat-room-header ${messageData.receiverName === item ? 'chatroom-active' : ''}`}
               onClick={() =>
                 setMessageData((prev) => {
                   return { ...prev, receiverName: item };
