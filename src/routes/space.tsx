@@ -9,7 +9,7 @@ import Link from "next/link";
 import { AuthContext } from "../providers/AuthProvider";
 import SockJS from "sockjs-client";
 import { CompatClient, Stomp } from "@stomp/stompjs";
-import { EnumStatus, TypeChats } from "../interfaces/chat";
+import { EnumStatus, IMessage, TypeChats } from "../interfaces/chat";
 
 let stompClient: CompatClient | null = null;
 const socketURL = "http://localhost:8081/ws";
@@ -20,7 +20,7 @@ export const SpaceComponent = () => {
 
   const { userContextData, _ }: any = useContext(AuthContext);
   const [messageData, setMessageData] = useState({
-    username: userContextData.username,
+    senderName: userContextData.username,
     receiverName: "",
     connected: true,
     message: "",
@@ -118,10 +118,7 @@ export const SpaceComponent = () => {
           setPrivateChats((prev) => {
             return {
               ...prev,
-              [`${chatRoom}`]: [
-                ...prev[`${chatRoom}`],
-                payloadData,
-              ],
+              [`${chatRoom}`]: [...prev[`${chatRoom}`], payloadData],
             };
           });
         }
@@ -140,10 +137,7 @@ export const SpaceComponent = () => {
       setPrivateChats((prev) => {
         return {
           ...prev,
-          [`${chatRoom}`]: [
-            ...prev[`${chatRoom}`],
-            payloadData,
-          ],
+          [`${chatRoom}`]: [...prev[`${chatRoom}`], payloadData],
         };
       });
     }
@@ -187,6 +181,7 @@ export const SpaceComponent = () => {
 
     setMessageData({ ...messageData, message: "" });
   };
+  console.log("privateChats: ", privateChats);
 
   useEffect(() => {
     fetchCookie();
@@ -205,7 +200,9 @@ export const SpaceComponent = () => {
           {Object.keys(privateChats)?.map((item: string, index: number) => (
             <div
               key={index}
-              className={`chat-room-header ${messageData.receiverName === item ? 'chatroom-active' : ''}`}
+              className={`chat-room-header ${
+                messageData.receiverName === item ? "chatroom-active" : ""
+              }`}
               onClick={() =>
                 setMessageData((prev) => {
                   return { ...prev, receiverName: item };
@@ -217,7 +214,32 @@ export const SpaceComponent = () => {
           {/* <OnlineSubscribers onlineSubscribedUsers={onlineSubscribedUsers} /> */}
         </div>
         <div className="chat-container">
-          <div className="chat-inbox"></div>
+          <div className="chat-inbox-container">
+          <div className="chat-inbox">
+            {privateChats[`${messageData.receiverName}`]?.map(
+              (item: IMessage, index: number) => (
+                <div key={index} className="message-box">
+                  <div
+                    className={`message-item ${
+                      item.senderName === userContextData.username
+                        ? "my-message-item"
+                        : ""
+                    }`}>
+                    {item.message}
+                  </div>
+                  <span
+                    className={`message-sender ${
+                      item.senderName === userContextData.username
+                        ? "true-user"
+                        : ""
+                    }`}>
+                    {item.senderName}
+                  </span>
+                </div>
+              )
+            )}
+          </div>
+          </div>
           <ChatForm
             userProps={{ messageData, setMessageData }}
             handlePushMessage={handlePushMessage}
