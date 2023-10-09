@@ -9,6 +9,7 @@ import { Suspense } from "react";
 import Loading from "./loading";
 import { ModalProvider } from "../providers/ModalProvider";
 import { AuthProvider } from "../providers/AuthProvider";
+import { WebSocketProvider } from "../providers/WebSocketProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,9 +27,11 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <ModalProvider>
-            <Navbar />
-            <RoutingNavLayout />
-            {children}
+            <WebSocketProvider>
+              <Navbar />
+              <RoutingNavLayout />
+              {children}
+            </WebSocketProvider>
           </ModalProvider>
         </AuthProvider>
       </body>

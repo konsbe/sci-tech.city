@@ -1,6 +1,10 @@
 import React from "react";
 import "./chatRoom.css";
-import SpaceComponent from "@/src/routes/space";
+import dynamic from "next/dynamic";
+// import SpaceComponent from "@/src/routes/space";
+const SpaceComponent = dynamic(() => import('@/src/routes/space'), {
+  ssr: false,
+});
 
 let fuck = "fuck";
 

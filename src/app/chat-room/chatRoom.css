@@ -152,12 +152,37 @@
 .chat-form textarea {
   border-radius: 0px 0px 0px 15px;
 }
-.chat-button {
+.chat-button-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: 10%;
-  height: 80%;
+  height: 90%;
+  border-radius: 0px 0px 15px 0px;
+  background-color: aliceblue;
+  /* border: 1px solid black; */
+  margin: 4px;
+}
+.chat-button {
+  width: 90%;
+  height: 70%;
   background-color: aliceblue;
   border: 1px solid black;
   margin: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.camera-button {
+  width: 90%;
+  height: 20%;
+  background-color: aliceblue;
+  border: 1px solid black;
+  border-radius: 0px 0px 15px 0px;
+  margin: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .create-room {
   width: 100%;
@@ -225,7 +250,7 @@
   margin: 0px 5px 0px 5px;
 
 }
-.chat-button {
+/* .chat-button {
   width: 30%;
-}
+} */
 }

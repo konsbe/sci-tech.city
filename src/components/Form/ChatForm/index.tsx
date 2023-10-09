@@ -1,7 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
-const ChatForm = ({ userProps, handlePushMessage }: any) => {
+
+const ChatForm = ({ userProps, handlePushMessage, videoStream }: any) => {
+
+
 
   return (
     <div className="chat-form">
@@ -10,10 +13,21 @@ const ChatForm = ({ userProps, handlePushMessage }: any) => {
         value={userProps.messageData.message}
         className="form-input"
         onChange={(e: any) =>
-          userProps.setMessageData((prev:any) => {return {...prev, message: e.target.value}})
+          userProps.setMessageData((prev: any) => {
+            return { ...prev, message: e.target.value };
+          })
         }
       />
-      <button className="chat-button" onClick={() => handlePushMessage(userProps.messageData)}>Button</button>
+      <div className="chat-button-group">
+        <button
+          className="chat-button"
+          onClick={() => handlePushMessage(userProps.messageData)}>
+          Send
+        </button>
+        <button className="camera-button" onClick={() => videoStream.callButtonOnClick()}>
+          Call
+        </button>
+      </div>
     </div>
   );
 };

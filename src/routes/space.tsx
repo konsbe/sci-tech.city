@@ -1,200 +1,214 @@
 "use client";
-import React, { useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import CreateFormButton from "../components/Form/CreatRoomButton";
 import ChatForm from "../components/Form/ChatForm";
 import CreateRoom from "../components/Form/CreateRoom";
 import LoginForm from "../components/LogInForm";
-import { getCookie } from "../app/actions";
 import Link from "next/link";
 import { AuthContext } from "../providers/AuthProvider";
-import SockJS from "sockjs-client";
-import { CompatClient, Stomp } from "@stomp/stompjs";
-import { EnumStatus, IMessage, TypeChats } from "../interfaces/chat";
+import { IMessage } from "../interfaces/chat";
+import peer from "@/src/utils/peer";
+import VideoComponent from "../components/VideoComponent";
+import CallIcon from "@mui/icons-material/Call";
+import { WebSocketContext } from "../providers/WebSocketProvider";
 
-let stompClient: CompatClient | null = null;
-const socketURL = "http://localhost:8081/ws";
+const servers = {
+  iceServers: [
+    {
+      urls: [
+        "stun:stun.l.google.com:19302",
+        "stun:global.stun.twilio.com:3478",
+      ],
+    },
+  ],
+};
 
 export const SpaceComponent = () => {
-  const [publicChats, setPublicChats] = useState<any[]>([]);
-  const [privateChats, setPrivateChats] = useState<TypeChats>({});
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const localVideoRef = useRef();
+  const remoteVideoRef = useRef();
+  const websocketRef = useRef();
 
   const { userContextData, _ }: any = useContext(AuthContext);
-  const [messageData, setMessageData] = useState({
-    senderName: userContextData.username,
-    receiverName: "",
-    connected: true,
-    message: "",
-    status: EnumStatus[EnumStatus.MESSAGE],
-  });
+  const {
+    callChats,
+    setCallChats,
+    privateChats,
+    messageData,
+    setMessageData,
+    handlePushMessage,
+    cookie,
+    sendValue,
+  }: any = useContext(WebSocketContext);
 
-  const [cookie, setCookie] = useState<string | null>(null);
-  const fetchCookie = async () => {
-    try {
-      const result = await getCookie("access_token");
-      setCookie(result?.value ?? null);
-    } catch (error) {
-      return null;
-    }
-  };
-  const connect = () => {
-    try {
-      if (userContextData.username) {
-        const socket = new SockJS(socketURL);
-        stompClient = Stomp.over(socket);
-        // stompClient.debug = () => {};
-        // stompClient = over(socket);
-        // let stompClient = Stomp.client(socketURL);
+  const pc = useRef(new RTCPeerConnection(servers));
+  const callInput = useRef(null);
+  // useEffect(() => {
+  //   if (Object.keys(privateChats).length < 1) return;
+  //   if (
+  //     privateChats[
+  //       `${Object.keys(privateChats)[Object.keys(privateChats).length - 1]}`
+  //     ].length < 1
+  //   ) {
+  //     return;
+  //   }
+  //   pc.current.addEventListener("track", async (ev) => {
+  //     const newRemoteStream = ev.streams;
+  //     console.log("GOT TRACKS!!", newRemoteStream);
+  //     setRemoteStream(newRemoteStream[0]);
+  //   });
 
-        stompClient.connect({}, onConnected, onError);
-      }
-    } catch (error) {
-      console.error("Error connecting to WebSocket server:", error);
-    }
-  };
-
-  const onConnected = () => {
-    stompClient?.subscribe("/chatroom/public", onMessageReceived);
-    stompClient?.subscribe(
-      "/user/" + userContextData.username + "/private",
-      onPrivateMessage
-    );
-    userJoin();
-  };
-
-  const userJoin = () => {
-    let chatMessage = {
-      senderName: userContextData.username,
-      message: `...${userContextData.username} join`,
-      date: new Date(),
-      receiverName: "",
-      status: EnumStatus[EnumStatus.JOIN],
-    };
-
-    // stompClient?.send("/app/chat.message", {}, JSON.stringify(chatMessage));
-    stompClient?.send("/chatroom/public", {}, JSON.stringify(chatMessage));
-    stompClient?.send("/app/chat.addUser", {}, JSON.stringify(chatMessage));
-  };
-
-  const userLeave = (username: string) => {
-    let chatMessage = {
-      senderName: userContextData.username,
-      message: `...${userContextData.username} left`,
-      date: new Date(),
-      receiverName: "",
-      status: EnumStatus[EnumStatus.LEAVE],
-    };
-    // stompClient?.send("/app/chat.message", {}, JSON.stringify(chatMessage));
-    // stompClient?.send("/chatroom/public", {}, JSON.stringify(chatMessage));
-    stompClient?.send("/app/chat.addUser", {}, JSON.stringify(chatMessage));
-  };
-
-  const onMessageReceived = (payload: any) => {
-    const payloadData = JSON.parse(payload.body);
-
-    switch (payloadData.status) {
-      case EnumStatus[EnumStatus.JOIN]:
-        payloadData?.connctedUsers.map((entry: string) => {
-          if (!privateChats[`${entry}`]) {
-            setPrivateChats((prev) => {
-              return { ...prev, [`${entry}`]: [] };
-            });
-          }
-        });
-        break;
-      case EnumStatus[EnumStatus.LEAVE]:
-        const leftUser = payloadData.senderName;
-        setPrivateChats((prev) => {
-          const { [`${leftUser}`]: deletedProperty, ...rest } = prev; // Use object destructuring to remove the property
-          return rest;
-        });
-        break;
-      case EnumStatus[EnumStatus.MESSAGE]:
-        if (!payloadData) return;
-        const chatRoom = payloadData.senderName;
-        if (
-          privateChats[`${chatRoom}`] &&
-          userContextData.username !== privateChats[`${chatRoom}`]
-        ) {
-          setPrivateChats((prev) => {
-            return {
-              ...prev,
-              [`${chatRoom}`]: [...prev[`${chatRoom}`], payloadData],
-            };
-          });
-        }
-        break;
-      default:
-        break;
-    }
-  };
-
-  const onPrivateMessage = (payload: any) => {
-    const payloadData = JSON.parse(payload.body);
-
-    if (!payloadData) return;
-    const chatRoom = payloadData.senderName;
-    if (privateChats[`${chatRoom}`]) {
-      setPrivateChats((prev) => {
-        return {
-          ...prev,
-          [`${chatRoom}`]: [...prev[`${chatRoom}`], payloadData],
-        };
-      });
-    }
-  };
-
-  const onError = (err: any) => {
-    console.log("err: ", err);
-  };
-
-  const sendValue = (messageReceiver: string = "chat.message") => {
-    if (stompClient) {
-      let chatMessage = {
-        senderName: userContextData.username,
-        date: new Date(),
-        message: messageData.message,
-        receiverName: messageData.receiverName,
-        status: EnumStatus[EnumStatus.MESSAGE],
-      };
-      if (privateChats[`${chatMessage.receiverName}`]) {
-        setPrivateChats((prev) => {
-          return {
-            ...prev,
-            [`${chatMessage.receiverName}`]: [
-              ...prev[`${chatMessage.receiverName}`],
-              chatMessage,
-            ],
-          };
-        });
-      }
-
-      stompClient?.send(
-        `/app/${messageReceiver}`,
-        {},
-        JSON.stringify(chatMessage)
-      );
-    }
-  };
-
-  const handlePushMessage = (item: any) => {
-    sendValue("private.message");
-
-    setMessageData({ ...messageData, message: "" });
-  };
-  console.log("privateChats: ", privateChats);
-
+  // }, [privateChats]);
   useEffect(() => {
-    fetchCookie();
+    console.log("privateChats: ", privateChats);
+    pc.current.addEventListener("track", async (ev) => {
+      const newRemoteStream = ev.streams;
+      console.log("GOT TRACKS!!", newRemoteStream);
+      setRemoteStream(newRemoteStream[0]);
+    });
+  }, []);
+  console.log("remoteStream: ", remoteStream);
+  console.log("localStream: ", localStream);
+  console.log("privateChats: ", privateChats);
+  console.log("callChats: ", callChats);
 
-    if (typeof window !== "undefined") {
-      connect();
+  const webcamButtonOnClick = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+    console.log("stream: ", stream);
+
+    setLocalStream(stream);
+    try {
+      // Push tracks from local stream to peer connection
+      stream.getTracks().forEach((track) => {
+        console.log("getTracks: ", track);
+        pc.current.addTrack(track, stream);
+      });
+
+      // Pull tracks from remote stream, add to video stream
+      // pc.current.ontrack = (event) => {
+      //   const newRemoteStream = new MediaStream();
+      //   event.streams[0].getTracks().forEach((track) => {
+      //     newRemoteStream.addTrack(track);
+      //   });
+      // setRemoteStream(newRemoteStream);
+      // };
+      // Pull tracks from remote stream, add to video stream
+    } catch (error) {
+      console.error("Error accessing webcam:", error);
     }
-  }, [cookie]);
+  };
 
+  const callButtonOnClick = async () => {
+    // Get candidates for caller, save to WebSocket
+    pc.current.onicecandidate = (event) => {
+      event.candidate &&
+        sendValue("private.message", JSON.stringify(event.candidate.toJSON()));
+    };
+
+    // Create offer
+    const offerDescription = await pc.current.createOffer();
+    await pc.current.setLocalDescription(offerDescription);
+
+    const offer = {
+      sdp: offerDescription.sdp,
+      type: offerDescription.type,
+    };
+
+    // Send the offer via WebSocket
+    const message = { offer: offer, user: userContextData };
+    sendValue("private.message", JSON.stringify(message));
+  };
+
+
+  const answerButtonOnClick = async (room: string, rooms: any) => {
+    try {
+      // Parse the offer received via WebSocket
+      const receivedOffer = rooms.find((r: any) =>
+        Object.keys(r).includes(room)
+      );
+
+      pc.current.onicecandidate = (event) => {
+        event.candidate &&
+          sendValue("private.message", JSON.stringify(event.candidate.toJSON()));
+      };
+
+      const remoteOffer = new RTCSessionDescription(
+        JSON.parse(receivedOffer[`${room}`].offer).offer
+      );
+
+      console.log("receivedOffer: ", JSON.parse(receivedOffer[`${room}`].offer).offer);
+      console.log("remoteOffer: ", remoteOffer);
+      // Set the remote offer as the remote description
+      await pc.current.setRemoteDescription(remoteOffer);
+
+      // Set up the ontrack event handler for remote tracks
+      pc.current.ontrack = (event) => {
+        const newRemoteStream = new MediaStream();
+        event.streams[0].getTracks().forEach((track) => {
+          newRemoteStream.addTrack(track);
+          console.log("newRemoteStream: ", newRemoteStream);
+        });
+        setRemoteStream(newRemoteStream);
+      };
+
+      pc.current.ontrack = (event) => {
+        const newRemoteStream = new MediaStream();
+        event.streams[0].getTracks().forEach((track) => {
+          newRemoteStream.addTrack(track);
+          console.log("newRemoteStream: ", newRemoteStream);
+        });
+        setRemoteStream(newRemoteStream);
+      };
+
+      // Create an answer
+      const answerDescription = await pc.current.createAnswer();
+
+      // Set the answer as the local description
+      await pc.current.setLocalDescription(answerDescription);
+
+      // Send the answer back to the remote peer via WebSocket
+      const answerMessage = {
+        answer: {
+          sdp: answerDescription.sdp,
+          type: answerDescription.type,
+        },
+        user: userContextData,
+      };
+      const obj = JSON.parse(receivedOffer[`${room}`].offer);
+      console.log("answerMessage: ", receivedOffer);
+      console.log("rooms: ", rooms);
+      
+      receivedOffer[`${room}`].candidates.map((change:any) => {
+          console.log("change: ",JSON.parse(change));
+          // console.log("candidate: ",JSON.parse(JSON.parse(change).candidate));
+          // if (change.type === 'added') {
+          //   let data = change.doc.data();
+            pc.current.addIceCandidate(new RTCIceCandidate(JSON.parse(change).candidate));
+          // }
+        });
+
+      // Send the answer message over WebSocket
+      sendValue("private.message", JSON.stringify(answerMessage), room);
+    } catch (error) {
+      console.error("Error creating or sending answer:", error);
+    }
+  };
+
+ 
+  
   return cookie ? (
     <>
       <div className="chat-room-container">
-        {/* <div>Chat-Room</div> */}
         <div className="chat-room-sidebar">
           <CreateFormButton />
           {Object.keys(privateChats)?.map((item: string, index: number) => (
@@ -204,45 +218,102 @@ export const SpaceComponent = () => {
                 messageData.receiverName === item ? "chatroom-active" : ""
               }`}
               onClick={() =>
-                setMessageData((prev) => {
+                setMessageData((prev: any) => {
                   return { ...prev, receiverName: item };
                 })
               }>
               <span>{item}</span>
+              {callChats?.some(
+                (obj: any, index: number) => Object.keys(obj)[index] === item
+              ) ? (
+                <CallIcon
+                  className="has-call-sidebar"
+                  // onClick={() => handleIncommingCall(item, callChats)}
+                  onClick={() => answerButtonOnClick(item, callChats)}
+                />
+              ) : (
+                ""
+              )}
             </div>
           ))}
-          {/* <OnlineSubscribers onlineSubscribedUsers={onlineSubscribedUsers} /> */}
         </div>
         <div className="chat-container">
+          <button id="webcamButton" onClick={() => webcamButtonOnClick()}>
+            Start Webcam
+          </button>
+          <button
+            id="callButton"
+            onClick={callButtonOnClick}
+            disabled={!localStream}>
+            Call
+          </button>
+          <button
+            id="answerButton"
+            // onClick={() => answerButtonOnClick("item", callChats)}
+            disabled={!localStream}>
+            Answer
+          </button>
+
           <div className="chat-inbox-container">
-          <div className="chat-inbox">
-            {privateChats[`${messageData.receiverName}`]?.map(
-              (item: IMessage, index: number) => (
-                <div key={index} className="message-box">
-                  <div
-                    className={`message-item ${
-                      item.senderName === userContextData.username
-                        ? "my-message-item"
-                        : ""
-                    }`}>
-                    {item.message}
+            <div className="chat-inbox">
+              <div className="videos">
+                {/* Add other buttons and video elements here */}
+                <span>me</span>
+                <video
+                  id="webcamVideo"
+                  autoPlay
+                  muted
+                  ref={(localVideoRef) => {
+                    if (localVideoRef) localVideoRef.srcObject = localStream;
+                  }}></video>
+                <span>him</span>
+                <video
+                  id="remoteVideo"
+                  autoPlay
+                  ref={(remoteVideoRef) => {
+                    if (remoteVideoRef) remoteVideoRef.srcObject = remoteStream;
+                  }}></video>
+                {/* <VideoComponent
+                  stream={localStream}
+                  title={userContextData.username}
+                />
+                <VideoComponent stream={remoteStream} title={"Remote Stream"} /> */}
+              </div>
+              {privateChats[`${messageData.receiverName}`]?.map(
+                (item: IMessage, index: number) => (
+                  <div key={index} className="message-box">
+                    <div
+                      className={`message-item ${
+                        item.senderName === userContextData.username
+                          ? "my-message-item"
+                          : ""
+                      } `}>
+                      {item.message}
+                    </div>
+                    <span
+                      className={`message-sender ${
+                        item.senderName === userContextData.username
+                          ? "true-user"
+                          : ""
+                      }`}>
+                      {item.senderName}
+                    </span>
                   </div>
-                  <span
-                    className={`message-sender ${
-                      item.senderName === userContextData.username
-                        ? "true-user"
-                        : ""
-                    }`}>
-                    {item.senderName}
-                  </span>
-                </div>
-              )
-            )}
-          </div>
+                )
+              )}
+            </div>
           </div>
           <ChatForm
             userProps={{ messageData, setMessageData }}
             handlePushMessage={handlePushMessage}
+            videoStream={{
+              localStream,
+              setLocalStream,
+              remoteStream,
+              setRemoteStream,
+              callButtonOnClick,
+              // handleCallUser,
+            }}
           />
         </div>
       </div>
