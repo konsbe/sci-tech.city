@@ -15,6 +15,10 @@ const WebSocketProvider = ({ children }: any) => {
   const [callChats, setCallChats] = useState<any[]>([]);
   const [publicChats, setPublicChats] = useState<any[]>([]);
   const [privateChats, setPrivateChats] = useState<TypeChats>({});
+  const [callData, setCallData] = useState<any>({
+    callerName: "",
+    receiverName: "",
+  });
 
   const { userContextData, _ }: any = useContext(AuthContext);
   const [messageData, setMessageData] = useState({
@@ -131,10 +135,15 @@ const WebSocketProvider = ({ children }: any) => {
   const onPrivateMessageReceived = async (payload: any) => {
     let payloadData = JSON.parse(payload.body);
     if (!payloadData) return;
-    console.log("payloadData: ", payloadData);
 
     if (payloadData.message.includes('"type":"offer"')) {
-      console.log("payloadData.message: ", JSON.parse(payloadData.message));
+      setCallData((prev: any) => {
+        return {
+          ...prev,
+          callerName: payloadData.senderName,
+          receiverName: userContextData.username,
+        };
+      });
       setCallChats((prevSet) => {
         // if (
         //   prevSet.find((r) => Object.keys(r).includes(payloadData.senderName))
@@ -148,11 +157,12 @@ const WebSocketProvider = ({ children }: any) => {
         };
         return [...prevSet, obj];
       });
-    } else if (payloadData.message.includes('"candidate":"candidate')) {
-      console.log("payloadData.message: ", JSON.parse(payloadData.message));
+    } else if (
+      payloadData.message.includes("candidate") &&
+      payloadData.message.includes("host")
+    ) {
       setCallChats((prevSet) => {
         const arr = prevSet.map((r) => {
-          
           return Object.keys(r).includes(payloadData.senderName)
             ? {
                 [`${payloadData.senderName}`]: {
@@ -170,7 +180,6 @@ const WebSocketProvider = ({ children }: any) => {
     }
     if (payloadData.message.includes('"type":"answer"')) {
       const obj: any = JSON.parse(payloadData.message);
-      console.log("obj: ", obj);
     }
 
     const chatRoom = payloadData.senderName;
@@ -207,7 +216,6 @@ const WebSocketProvider = ({ children }: any) => {
         privateChats[`${chatMessage.receiverName}`] &&
         chatMessage.receiverName !== chatMessage.senderName
       ) {
-        console.log("receiver: ", chatMessage);
         // if (typeof chatMessage.message === 'object' || chatMessage.message.includes("answer")) {
         //   // if (callChats.find(obj => Object.keys(obj).includes(chatMessage.receiverName))) return;
         //   setCallChats((prevSet) => {
@@ -287,6 +295,9 @@ const WebSocketProvider = ({ children }: any) => {
 
   // Value to be provided by the context
   const state = {
+    stompClient,
+    callData,
+    setCallData,
     callChats,
     setCallChats,
     privateChats,

@@ -13,8 +13,6 @@ import LoginForm from "../components/LogInForm";
 import Link from "next/link";
 import { AuthContext } from "../providers/AuthProvider";
 import { IMessage } from "../interfaces/chat";
-import peer from "@/src/utils/peer";
-import VideoComponent from "../components/VideoComponent";
 import CallIcon from "@mui/icons-material/Call";
 import { WebSocketContext } from "../providers/WebSocketProvider";
 
@@ -31,13 +29,12 @@ const servers = {
 
 export const SpaceComponent = () => {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const localVideoRef = useRef();
-  const remoteVideoRef = useRef();
-  const websocketRef = useRef();
-
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);  
   const { userContextData, _ }: any = useContext(AuthContext);
   const {
+    stompClient,
+    callData,
+    setCallData,
     callChats,
     setCallChats,
     privateChats,
@@ -50,58 +47,100 @@ export const SpaceComponent = () => {
 
   const pc = useRef(new RTCPeerConnection(servers));
   const callInput = useRef(null);
-  // useEffect(() => {
-  //   if (Object.keys(privateChats).length < 1) return;
-  //   if (
-  //     privateChats[
-  //       `${Object.keys(privateChats)[Object.keys(privateChats).length - 1]}`
-  //     ].length < 1
-  //   ) {
-  //     return;
-  //   }
-  //   pc.current.addEventListener("track", async (ev) => {
-  //     const newRemoteStream = ev.streams;
-  //     console.log("GOT TRACKS!!", newRemoteStream);
-  //     setRemoteStream(newRemoteStream[0]);
-  //   });
 
-  // }, [privateChats]);
   useEffect(() => {
-    console.log("privateChats: ", privateChats);
+    
+    if (!callData.callerName || !callData.receiverName) return;
+    if (Object.keys(privateChats).length < 1) return;
+    if (
+      privateChats[callData.receiverName]?.length < 1
+    ) {
+      return;
+    }
+    if (
+      !privateChats[`${callData.receiverName}`][
+        privateChats[`${callData.receiverName}`]?.length - 1
+      ]?.message?.includes("answer")
+    ) {
+      return;
+    }
+    if (
+      privateChats[`${callData.callerName}`][
+        privateChats[`${callData.callerName}`]?.length - 1
+      ]?.message?.includes("answer") &&
+      callData.receiverName === userContextData.username
+    ) {
+      return;
+    }
+    handleReceiverAnswer(
+      privateChats[`${callData.receiverName}`][
+        privateChats[`${callData.receiverName}`]?.length - 1
+      ]?.message
+    );
+  }, [privateChats]);
+
+  useEffect(() => {
     pc.current.addEventListener("track", async (ev) => {
       const newRemoteStream = ev.streams;
-      console.log("GOT TRACKS!!", newRemoteStream);
       setRemoteStream(newRemoteStream[0]);
     });
   }, []);
-  console.log("remoteStream: ", remoteStream);
-  console.log("localStream: ", localStream);
-  console.log("privateChats: ", privateChats);
-  console.log("callChats: ", callChats);
+
+  useEffect(() => {
+    // Pull tracks from remote stream, add to video stream
+    pc.current.ontrack = (event) => {
+      const newRemoteStream = new MediaStream();
+      event.streams[0].getTracks().forEach((track) => {
+        newRemoteStream.addTrack(track);
+      });
+      setRemoteStream(newRemoteStream);
+    };
+  }, []);
+
+  const handleReceiverAnswer = async (answerMessage: any) => {
+    try {
+
+      // Parse the answer message
+      const { answer, user } = JSON.parse(answerMessage);
+
+      // Set the remote description with the received answer
+      if (pc.current.signalingState !== "have-remote-offer") {
+        const answerDescription = new RTCSessionDescription(answer);
+        await pc.current.setRemoteDescription(answerDescription);
+      } else {
+        // Handle the case where setting the remote description is not allowed in the current state.
+        console.warn(
+          "Cannot set remote description in the current state:",
+          pc.current.signalingState
+        );
+      }
+      // Handle ICE candidates from the receiver (if any)
+      // if (user && user.userId === messageData.recei) {
+      // Extract and handle ICE candidates
+      const iceCandidates = user.candidates || [];
+      iceCandidates.forEach((candidate: any) => {
+        const iceCandidate = new RTCIceCandidate(candidate);
+        pc.current.addIceCandidate(iceCandidate);
+      });
+      // }
+    } catch (error) {
+      console.error("Error handling receiver answer:", error);
+    }
+  };
 
   const webcamButtonOnClick = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
     });
-    console.log("stream: ", stream);
 
     setLocalStream(stream);
     try {
       // Push tracks from local stream to peer connection
       stream.getTracks().forEach((track) => {
-        console.log("getTracks: ", track);
         pc.current.addTrack(track, stream);
       });
 
-      // Pull tracks from remote stream, add to video stream
-      // pc.current.ontrack = (event) => {
-      //   const newRemoteStream = new MediaStream();
-      //   event.streams[0].getTracks().forEach((track) => {
-      //     newRemoteStream.addTrack(track);
-      //   });
-      // setRemoteStream(newRemoteStream);
-      // };
       // Pull tracks from remote stream, add to video stream
     } catch (error) {
       console.error("Error accessing webcam:", error);
@@ -111,9 +150,35 @@ export const SpaceComponent = () => {
   const callButtonOnClick = async () => {
     // Get candidates for caller, save to WebSocket
     pc.current.onicecandidate = (event) => {
-      event.candidate &&
-        sendValue("private.message", JSON.stringify(event.candidate.toJSON()));
+      // Assuming obj is your RTCIceCandidate object
+      var obj = event.candidate && {
+        address: event.candidate.address,
+        candidate: event.candidate.candidate,
+        component: event.candidate.component,
+        foundation: event.candidate.foundation,
+        port: event.candidate.port,
+        priority: event.candidate.priority,
+        protocol: event.candidate.protocol,
+        relatedAddress: event.candidate.relatedAddress,
+        relatedPort: event.candidate.relatedPort,
+        sdpMLineIndex: event.candidate.sdpMLineIndex,
+        sdpMid: event.candidate.sdpMid,
+        tcpType: event.candidate.tcpType,
+        type: event.candidate.type,
+        usernameFragment: event.candidate.usernameFragment,
+      };
+
+      var jsonString = JSON.stringify(obj);
+
+      obj && sendValue("private.message", jsonString);
     };
+    setCallData((prev: any) => {
+      return {
+        ...prev,
+        callerName: userContextData.username,
+        receiverName: messageData.receiverName,
+      };
+    });
 
     // Create offer
     const offerDescription = await pc.current.createOffer();
@@ -129,7 +194,6 @@ export const SpaceComponent = () => {
     sendValue("private.message", JSON.stringify(message));
   };
 
-
   const answerButtonOnClick = async (room: string, rooms: any) => {
     try {
       // Parse the offer received via WebSocket
@@ -138,37 +202,46 @@ export const SpaceComponent = () => {
       );
 
       pc.current.onicecandidate = (event) => {
-        event.candidate &&
-          sendValue("private.message", JSON.stringify(event.candidate.toJSON()));
+        var obj = event.candidate && {
+          address: event.candidate.address,
+          candidate: event.candidate.candidate,
+          component: event.candidate.component,
+          foundation: event.candidate.foundation,
+          port: event.candidate.port,
+          priority: event.candidate.priority,
+          protocol: event.candidate.protocol,
+          relatedAddress: event.candidate.relatedAddress,
+          relatedPort: event.candidate.relatedPort,
+          sdpMLineIndex: event.candidate.sdpMLineIndex,
+          sdpMid: event.candidate.sdpMid,
+          tcpType: event.candidate.tcpType,
+          type: event.candidate.type,
+          usernameFragment: event.candidate.usernameFragment,
+        };
+
+        event.candidate && sendValue("private.message", JSON.stringify(obj));
       };
-
-      const remoteOffer = new RTCSessionDescription(
-        JSON.parse(receivedOffer[`${room}`].offer).offer
-      );
-
-      console.log("receivedOffer: ", JSON.parse(receivedOffer[`${room}`].offer).offer);
-      console.log("remoteOffer: ", remoteOffer);
-      // Set the remote offer as the remote description
-      await pc.current.setRemoteDescription(remoteOffer);
 
       // Set up the ontrack event handler for remote tracks
       pc.current.ontrack = (event) => {
         const newRemoteStream = new MediaStream();
         event.streams[0].getTracks().forEach((track) => {
           newRemoteStream.addTrack(track);
-          console.log("newRemoteStream: ", newRemoteStream);
         });
         setRemoteStream(newRemoteStream);
       };
 
-      pc.current.ontrack = (event) => {
-        const newRemoteStream = new MediaStream();
-        event.streams[0].getTracks().forEach((track) => {
-          newRemoteStream.addTrack(track);
-          console.log("newRemoteStream: ", newRemoteStream);
-        });
-        setRemoteStream(newRemoteStream);
-      };
+      const remoteOffer = new RTCSessionDescription(
+        JSON.parse(receivedOffer[`${room}`].offer).offer
+      );
+
+      // Set the remote offer as the remote description
+      await pc.current.setRemoteDescription(remoteOffer);
+
+      // adds the ICE candidates received from the caller using
+      receivedOffer[`${room}`].candidates.map((change: any) => {
+        pc.current.addIceCandidate(new RTCIceCandidate(JSON.parse(change)));
+      });
 
       // Create an answer
       const answerDescription = await pc.current.createAnswer();
@@ -184,18 +257,6 @@ export const SpaceComponent = () => {
         },
         user: userContextData,
       };
-      const obj = JSON.parse(receivedOffer[`${room}`].offer);
-      console.log("answerMessage: ", receivedOffer);
-      console.log("rooms: ", rooms);
-      
-      receivedOffer[`${room}`].candidates.map((change:any) => {
-          console.log("change: ",JSON.parse(change));
-          // console.log("candidate: ",JSON.parse(JSON.parse(change).candidate));
-          // if (change.type === 'added') {
-          //   let data = change.doc.data();
-            pc.current.addIceCandidate(new RTCIceCandidate(JSON.parse(change).candidate));
-          // }
-        });
 
       // Send the answer message over WebSocket
       sendValue("private.message", JSON.stringify(answerMessage), room);
@@ -204,8 +265,6 @@ export const SpaceComponent = () => {
     }
   };
 
- 
-  
   return cookie ? (
     <>
       <div className="chat-room-container">
