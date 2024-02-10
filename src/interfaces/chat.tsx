@@ -2,6 +2,11 @@ export enum EnumStatus {
   LEAVE,
   MESSAGE,
   JOIN,
+  CALLOFFER,
+  CALLACCEPTED,
+  CANDIDATE,
+  CALLREJECTED,
+  CALLENDED
 }
 export interface IMessage {
   senderName: string;

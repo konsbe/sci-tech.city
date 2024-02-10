@@ -12,10 +12,14 @@ let stompClient: CompatClient | null = null;
 const socketURL = "http://localhost:8081/ws";
 
 const WebSocketProvider = ({ children }: any) => {
+  const [cookie, setCookie] = useState<string | null>(null);
   const [callChats, setCallChats] = useState<any[]>([]);
+  const [callAccepted, setCallAccepted] = useState<string>();
+  const [callEnded, setCallEnded] = useState<string>("");
   const [publicChats, setPublicChats] = useState<any[]>([]);
   const [privateChats, setPrivateChats] = useState<TypeChats>({});
-  const [callData, setCallData] = useState<any>({
+
+  const [callData, setCallData] = useState({
     callerName: "",
     receiverName: "",
   });
@@ -28,6 +32,15 @@ const WebSocketProvider = ({ children }: any) => {
     message: "",
     status: EnumStatus[EnumStatus.MESSAGE],
   });
+
+  const fetchCookie = async () => {
+    try {
+      const result = await getCookie("access_token");
+      setCookie(result?.value ?? null);
+    } catch (error) {
+      return null;
+    }
+  };
 
   const connect = () => {
     try {
@@ -82,18 +95,9 @@ const WebSocketProvider = ({ children }: any) => {
     stompClient?.send("/app/chat.addUser", {}, JSON.stringify(chatMessage));
   };
 
-  const [cookie, setCookie] = useState<string | null>(null);
-  const fetchCookie = async () => {
-    try {
-      const result = await getCookie("access_token");
-      setCookie(result?.value ?? null);
-    } catch (error) {
-      return null;
-    }
-  };
-
   const onMessageReceived = (payload: any) => {
     let payloadData = JSON.parse(payload.body);
+    if (!payloadData) return;
 
     switch (payloadData.status) {
       case EnumStatus[EnumStatus.JOIN]:
@@ -127,6 +131,13 @@ const WebSocketProvider = ({ children }: any) => {
           });
         }
         break;
+      case EnumStatus[EnumStatus.CALLENDED]:
+          setCallAccepted("");
+          setCallEnded(callData.receiverName);
+          console.log("callData.receiverName: ", callData.receiverName);
+          
+          const obj: any = JSON.parse(payloadData.message);
+        break;
       default:
         break;
     }
@@ -135,8 +146,8 @@ const WebSocketProvider = ({ children }: any) => {
   const onPrivateMessageReceived = async (payload: any) => {
     let payloadData = JSON.parse(payload.body);
     if (!payloadData) return;
-
-    if (payloadData.message.includes('"type":"offer"')) {
+    
+    if (payloadData.status == EnumStatus[EnumStatus.CALLOFFER]) {
       setCallData((prev: any) => {
         return {
           ...prev,
@@ -145,10 +156,6 @@ const WebSocketProvider = ({ children }: any) => {
         };
       });
       setCallChats((prevSet) => {
-        // if (
-        //   prevSet.find((r) => Object.keys(r).includes(payloadData.senderName))
-        // )
-        //   return [...prevSet];
         const obj = {
           [`${payloadData.senderName}`]: {
             offer: payloadData.message,
@@ -157,10 +164,7 @@ const WebSocketProvider = ({ children }: any) => {
         };
         return [...prevSet, obj];
       });
-    } else if (
-      payloadData.message.includes("candidate") &&
-      payloadData.message.includes("host")
-    ) {
+    } else if (payloadData.status == EnumStatus[EnumStatus.CANDIDATE]) {
       setCallChats((prevSet) => {
         const arr = prevSet.map((r) => {
           return Object.keys(r).includes(payloadData.senderName)
@@ -178,7 +182,16 @@ const WebSocketProvider = ({ children }: any) => {
         return arr;
       });
     }
-    if (payloadData.message.includes('"type":"answer"')) {
+    if (payloadData.status == EnumStatus[EnumStatus.CALLACCEPTED]) {
+      setCallAccepted(callData.receiverName);
+      const obj: any = JSON.parse(payloadData.message);
+    }
+
+    if (payloadData.status == EnumStatus[EnumStatus.CALLENDED]) {
+      setCallAccepted("");
+      console.log("callData.receiverName onPrivateMessageReceived: ", payloadData.senderName);
+
+      setCallEnded(payloadData.senderName);
       const obj: any = JSON.parse(payloadData.message);
     }
 
@@ -190,9 +203,10 @@ const WebSocketProvider = ({ children }: any) => {
           ...prev[`${chatRoom}`],
           {
             ...payloadData,
-            message: payloadData.message.includes('"type":"offer"')
-              ? "call from user " + payloadData.senderName
-              : payloadData.message,
+            message:
+              payloadData.status == EnumStatus[EnumStatus.CALLOFFER]
+                ? "call from user " + payloadData.senderName
+                : payloadData.message,
           },
         ],
       };
@@ -202,7 +216,8 @@ const WebSocketProvider = ({ children }: any) => {
   const sendValue = (
     messageReceiver: string = "chat.message",
     messageValue: string = messageData.message,
-    messageReceiverName: string = messageData.receiverName
+    messageReceiverName: string = messageData.receiverName,
+    messageStatus: string = EnumStatus[EnumStatus.MESSAGE]
   ) => {
     if (stompClient) {
       let chatMessage = {
@@ -210,50 +225,12 @@ const WebSocketProvider = ({ children }: any) => {
         date: new Date(),
         message: messageValue,
         receiverName: messageReceiverName,
-        status: EnumStatus[EnumStatus.MESSAGE],
+        status: messageStatus,
       };
       if (
         privateChats[`${chatMessage.receiverName}`] &&
         chatMessage.receiverName !== chatMessage.senderName
       ) {
-        // if (typeof chatMessage.message === 'object' || chatMessage.message.includes("answer")) {
-        //   // if (callChats.find(obj => Object.keys(obj).includes(chatMessage.receiverName))) return;
-        //   setCallChats((prevSet) => {
-        //     // const chatCall = JSON.parse(chatMessage?.message);
-        //     const obj = { [`${chatMessage.receiverName}`]: typeof chatMessage.message === 'string' ? JSON.parse(chatMessage?.message) : chatMessage?.message };
-        //     return [...prevSet, obj]; // Return the new set
-        //   });
-        //   setPrivateChats((prev) => {
-        //     return {
-        //       ...prev,
-        //       [`${chatMessage.receiverName}`]: [
-        //         ...prev[`${chatMessage.receiverName}`],
-        //         {
-        //           ...chatMessage,
-        //           message: "call user " + chatMessage.receiverName,
-        //         },
-        //       ],
-        //     };
-        //   });
-        // } else if (chatMessage.message.includes('"type":"offer"')) {
-        //   setCallChats((prevSet) => {
-        //     const chatCall = JSON.parse(chatMessage?.message);
-        //     const obj = { [`${chatCall.user.username}`]: chatCall.offer };
-        //     return [...prevSet, obj]; // Return the new set
-        //   });
-        //   setPrivateChats((prev) => {
-        //     return {
-        //       ...prev,
-        //       [`${chatMessage.receiverName}`]: [
-        //         ...prev[`${chatMessage.receiverName}`],
-        //         {
-        //           ...chatMessage,
-        //           message: "call user " + chatMessage.receiverName,
-        //         },
-        //       ],
-        //     };
-        //   });
-        // } else {
         setPrivateChats((prev) => {
           return {
             ...prev,
@@ -263,7 +240,6 @@ const WebSocketProvider = ({ children }: any) => {
             ],
           };
         });
-        // }
       }
       stompClient?.send(
         `/app/${messageReceiver}`,
@@ -275,14 +251,14 @@ const WebSocketProvider = ({ children }: any) => {
 
   const handlePushMessage = (item: any) => {
     sendValue("private.message");
-
+    
     setMessageData((prev) => {
       return { ...prev, message: "" };
     });
   };
 
   const onError = (err: any) => {
-    console.log("err: ", err);
+    console.error("err: ", err);
   };
 
   useEffect(() => {
@@ -295,7 +271,6 @@ const WebSocketProvider = ({ children }: any) => {
 
   // Value to be provided by the context
   const state = {
-    stompClient,
     callData,
     setCallData,
     callChats,
@@ -306,6 +281,9 @@ const WebSocketProvider = ({ children }: any) => {
     handlePushMessage,
     cookie,
     sendValue,
+    callAccepted,
+    setCallAccepted,
+    callEnded
   };
 
   return (

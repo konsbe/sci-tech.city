@@ -8,7 +8,6 @@ export const hashFunction: (unHashString: string) => Promise<string> = async (
     const hash = await bcrypt.hash(unHashString, salt);
     return hash;
   } catch (err) {
-    // console.log("Cannot encrypt");
     return "error";
   }
 };
@@ -32,10 +31,8 @@ export const hashCompareFunction: (
     });
 
     if (isMatch) {
-      // console.log('Password matches:', password);
       return true;
     } else {
-      // console.log('Password does not match:', password);
       return false;
     }
   } catch (error) {

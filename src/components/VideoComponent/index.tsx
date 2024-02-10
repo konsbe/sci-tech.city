@@ -13,6 +13,7 @@ const VideoComponent = ({
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
+    
     if (stream && videoRef.current) {
         try {
           videoRef.current.srcObject = stream;

@@ -48,9 +48,8 @@ const ProjectsForm: FC<IProps> = ({ currentId, setCurrentId }): JSX.Element => {
   }, [currentId, data.description, data.selectedFile, data.tags, data.title]);
   const handleSubmit = (e: React.SyntheticEvent | React.FormEvent) => {
     e.preventDefault();
-    console.log("postData:", postData);
+
     if (currentId) {
-      console.log("Current id");
 
       const myProjectData: IProject = {
         ...postData,

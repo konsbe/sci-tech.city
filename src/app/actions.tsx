@@ -43,7 +43,7 @@ export async function decodeToken(accessToken: string) {
 
 export const login = async (data: { username: string; password: string }) => {
   const response = await fetch(
-    "http://localhost:8080/api/keycloak-service/signin",
+    "http://localhost:8082/api/keycloak-service/signin",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -55,7 +55,7 @@ export const login = async (data: { username: string; password: string }) => {
   const parts = res?.access_token?.split(".");
   // const header = JSON.parse(atob(parts[0]));
   const payload = JSON.parse(atob(parts[1]));
-
+    
   await createCookie({
     name: "access_token",
     value: res?.access_token,
@@ -74,7 +74,7 @@ export const logout = async () => {
   if (!hasCookie) return;
 
   const response = await fetch(
-    "http://localhost:8080/api/keycloak-service/logout",
+    "http://localhost:8082/api/keycloak-service/logout",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

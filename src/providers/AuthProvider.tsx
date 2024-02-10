@@ -1,8 +1,8 @@
 "use client";
-import React, { createContext, useState } from "react";
+import React, { ProviderProps, createContext, useState } from "react";
 import { createCookie } from "../app/actions";
 
-const IContextUserState: IContextProps = {
+const IContextUserState: UserPropTypes = {
   firstName: "",
   lastName: "",
   email: "",
@@ -10,7 +10,7 @@ const IContextUserState: IContextProps = {
   userId: "",
 };
 
-export type IContextProps = {
+export type UserPropTypes = {
   firstName: string;
   lastName: string;
   email: string;
@@ -18,14 +18,15 @@ export type IContextProps = {
   userId: string;
 };
 
-const AuthContext = createContext<Partial<IContextProps>>({});
+const AuthContext = createContext<ProviderProps<Partial<UserPropTypes>>>({
+  value: {},
+});
 
 const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }: any) => {
-
   const [userContextData, setUserContextData] =
-    useState<IContextProps>(IContextUserState);
-  
-    const state: any = {
+    useState<UserPropTypes>(IContextUserState);
+
+  const state :any = {
     userContextData,
     setUserContextData,
   };

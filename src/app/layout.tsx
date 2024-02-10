@@ -10,6 +10,7 @@ import Loading from "./loading";
 import { ModalProvider } from "../providers/ModalProvider";
 import { AuthProvider } from "../providers/AuthProvider";
 import { WebSocketProvider } from "../providers/WebSocketProvider";
+import { WebRTCProvider } from "../providers/WebRTCProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,9 +29,11 @@ export default function RootLayout({
         <AuthProvider>
           <ModalProvider>
             <WebSocketProvider>
-              <Navbar />
-              <RoutingNavLayout />
-              {children}
+              <WebRTCProvider>
+                <Navbar />
+                <RoutingNavLayout />
+                {children}
+              </WebRTCProvider>
             </WebSocketProvider>
           </ModalProvider>
         </AuthProvider>

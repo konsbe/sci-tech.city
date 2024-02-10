@@ -171,6 +171,17 @@ scrollbar-container > p {
   flex-direction: column;
   justify-content: flex-end;
 }
+.fixed-center{
+  z-index: 10;
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* transform: translateX(-50%); */
+  /* width: 50%; */
+}
 
 .w-40 {
   width: 40%;
