@@ -108,6 +108,8 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
   }, [callAccepted]);
 
   useEffect(() => {
+    console.log("callEnded callChats: ",callChats);
+    
     callEnded && closeCallOnClick(callEnded, []);
   }, [callEnded]);
 

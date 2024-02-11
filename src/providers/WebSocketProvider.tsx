@@ -146,6 +146,7 @@ const WebSocketProvider = ({ children }: any) => {
   const onPrivateMessageReceived = async (payload: any) => {
     let payloadData = JSON.parse(payload.body);
     if (!payloadData) return;
+    console.log("payload::", payload);
     
     if (payloadData.status == EnumStatus[EnumStatus.CALLOFFER]) {
       setCallData((prev: any) => {
@@ -167,6 +168,8 @@ const WebSocketProvider = ({ children }: any) => {
     } else if (payloadData.status == EnumStatus[EnumStatus.CANDIDATE]) {
       setCallChats((prevSet) => {
         const arr = prevSet.map((r) => {
+          console.log("payloadData.senderName:: ", payloadData.senderName);
+          
           return Object.keys(r).includes(payloadData.senderName)
             ? {
                 [`${payloadData.senderName}`]: {
@@ -179,6 +182,8 @@ const WebSocketProvider = ({ children }: any) => {
               }
             : r;
         });
+        console.log("arr: ",arr);
+        
         return arr;
       });
     }
