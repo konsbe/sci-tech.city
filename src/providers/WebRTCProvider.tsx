@@ -6,7 +6,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { createCookie } from "../app/actions";
 import { EnumStatus } from "../interfaces/chat";
 import { AuthContext, UserPropTypes } from "./AuthProvider";
 import { WebSocketContext } from "./WebSocketProvider";
@@ -108,8 +107,10 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
   }, [callAccepted]);
 
   useEffect(() => {
-    console.log("callEnded callChats: ",callChats);
-    
+    setCallChats((prev: []) => {
+      const newArr = prev.filter(obj => !Object.keys(obj).includes(callEnded))
+      return newArr 
+    })
     callEnded && closeCallOnClick(callEnded, []);
   }, [callEnded]);
 

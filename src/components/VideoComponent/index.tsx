@@ -24,15 +24,18 @@ const VideoComponent = ({
   }, [stream,videoRef]);
 
   return (
-    <span>
-      <h3>{title}</h3>
+    <div >
+      <span>{title}</span>
       <video
         ref={videoRef}
         autoPlay
         playsInline
+        width={350}
+        height={280}
+        className="video-ref"
         muted={title === "Local Stream"}
       />
-    </span>
+    </div>
   );
 };
 

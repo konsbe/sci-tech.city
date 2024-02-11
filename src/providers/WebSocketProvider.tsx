@@ -108,6 +108,11 @@ const WebSocketProvider = ({ children }: any) => {
             });
           }
         });
+        setCallChats((prev) => {
+          const newArr = prev.filter(obj => !Object.keys(obj).includes(payloadData.senderName))
+          if (newArr.length !== prev.length) setCallEnded(payloadData.senderName)
+          return newArr 
+        })
         break;
       case EnumStatus[EnumStatus.LEAVE]:
         const leftUser = payloadData.senderName;
@@ -115,6 +120,11 @@ const WebSocketProvider = ({ children }: any) => {
           const { [`${leftUser}`]: deletedProperty, ...rest } = prev; // Use object destructuring to remove the property
           return rest;
         });
+        setCallChats((prev) => {
+          const newArr = prev.filter(obj => !Object.keys(obj).includes(payloadData.senderName))
+          if (newArr.length !== prev.length) setCallEnded(payloadData.senderName)
+          return newArr 
+        }) 
         break;
       case EnumStatus[EnumStatus.MESSAGE]:
         if (!payloadData) return;

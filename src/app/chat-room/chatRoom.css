@@ -64,8 +64,15 @@
 }
 
 .chat-container {
-  width: 80%;
+  width: 50%;
   border: 1px solid black;
+}
+.video-container{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height:100%;
+  margin-left:15px
 }
 .chat-inbox-container {
   width: 100%;
@@ -203,7 +210,7 @@
   .chat-room-container {
     /* background-color: rgb(230, 255, 202); */
     /* height: 600px; */
-    height: 100%;
+    height: 90%;
     width: 80%;
     display: flex;
     flex-direction: column;
@@ -222,6 +229,10 @@
     padding-left: 10px;
     height: 5%;
     width: 95%;
+  }
+
+  .video-container{
+    display: none;
   }
 
   .chat-room-sidebar::-webkit-scrollbar {

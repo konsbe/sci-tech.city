@@ -1,7 +1,5 @@
 "use client";
-import React, {
-  useContext,
-} from "react";
+import React, { useContext } from "react";
 import CreateFormButton from "../components/Form/CreatRoomButton";
 import ChatForm from "../components/Form/ChatForm";
 import CreateRoom from "../components/Form/CreateRoom";
@@ -13,7 +11,6 @@ import CallIcon from "@mui/icons-material/Call";
 import { WebSocketContext } from "../providers/WebSocketProvider";
 import VideoComponent from "../components/VideoComponent";
 import { WebRTCContext } from "../providers/WebRTCProvider";
-
 
 export const SpaceComponent = () => {
   const { userContextData, _ }: any = useContext(AuthContext);
@@ -32,8 +29,13 @@ export const SpaceComponent = () => {
     webcamButtonOnClick,
     callButtonOnClick,
     answerButtonOnClick,
-    isMyCameraEnabled, toggleMicrophone, isMicEnabled, shareScreenButtonOnClick, isScreenSharing, closeCallOnClick, shareScreenStream
-
+    isMyCameraEnabled,
+    toggleMicrophone,
+    isMicEnabled,
+    shareScreenButtonOnClick,
+    isScreenSharing,
+    closeCallOnClick,
+    shareScreenStream,
   }: any = useContext(WebRTCContext);
 
   return cookie ? (
@@ -53,9 +55,7 @@ export const SpaceComponent = () => {
                 })
               }>
               <span>{item}</span>
-              {callChats?.some(
-                (obj: any) => Object.keys(obj)[0] === item
-              ) ? (
+              {callChats?.some((obj: any) => Object.keys(obj)[0] === item) ? (
                 <div>
                   <CallIcon
                     className={
@@ -132,8 +132,9 @@ export const SpaceComponent = () => {
                   {remoteStream && (
                     <button
                       id="closeButton"
-                      onClick={() =>
-                        closeCallOnClick(messageData.receiverName, callChats)
+                      onClick={
+                        () =>
+                          closeCallOnClick(messageData.receiverName, callChats)
                         // rejectButtonOnClick(messageData.receiverName, callChats)
                       }
                       disabled={!localStream}>
@@ -143,16 +144,6 @@ export const SpaceComponent = () => {
                 </div>
               </div>
 
-              <div className="videos">
-                <VideoComponent
-                  stream={isScreenSharing || shareScreenStream ? shareScreenStream : localStream}
-                  title={userContextData.username}
-                />
-                <VideoComponent
-                  stream={remoteStream}
-                  title={messageData.receiverName}
-                />
-              </div>
               {privateChats[`${messageData.receiverName}`]?.map(
                 (item: IMessage, index: number) => (
                   <div key={index} className="message-box">
@@ -182,6 +173,16 @@ export const SpaceComponent = () => {
             handlePushMessage={handlePushMessage}
             videoStream={{ callButtonOnClick }}
           />
+        </div>
+        <div className="video-container">
+            <VideoComponent
+              stream={isScreenSharing || shareScreenStream ? shareScreenStream : localStream}
+              title={userContextData.username}
+            />
+            <VideoComponent
+              stream={remoteStream}
+              title={messageData.receiverName}
+            />
         </div>
       </div>
       <CreateRoom />
