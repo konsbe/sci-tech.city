@@ -7,7 +7,6 @@ import { Button, ButtonGroup } from "@mui/material";
 import styled from "@emotion/styled";
 import FileBase from "react-file-base64";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
-import FormControl from "@mui/material/FormControl";
 import styles from "@/src/styles/Form.module.css";
 import Profile from "./Profile";
 import { hashCompareFunction, hashFunction } from "@/src/utils/bcrypt";
@@ -50,13 +49,23 @@ function SignUpForm() {
   const [formData, setFormData] = useState<UserInfo>(initialState);
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(true);
-
+  const placeholder_styles = {
+    width: "100%",
+    marginBottom: 1,
+    input: {
+      "&::placeholder": {
+        // <----- Add this.
+        opacity: 1,
+      },
+    },
+    label: { color: "white" },
+  }
   const handleSubmit = async (e: React.SyntheticEvent | React.FormEvent) => {
     e.preventDefault();
 
     if (await hashCompareFunction(confirmPassword, formData.password)) {
-      const sub = await createUser(formData)
-      return sub
+      const sub = await createUser(formData);
+      return sub;
     } else {
       alert("password is not the same");
     }
@@ -130,7 +139,7 @@ function SignUpForm() {
       imageToBase64(result);
       setLoading(false);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   return (
@@ -164,22 +173,22 @@ function SignUpForm() {
         </ButtonGroup>
       </Container>
       <form onSubmit={handleSubmit} className={styles.signUpform}>
-        <FormControl variant="standard">
-          <div className={styles.filebase}>
-            <FileBase
-              type="file"
-              multiple={false}
-              name="profilePicture"
-              fullWidth
-              value={formData.profilePicture}
-              onDone={({ base64 }: any) =>
-                setFormData({ ...formData, profilePicture: base64 })
-              }
-            />
-            <Button color="error" onClick={resetForm}>
-              discard
-            </Button>
-          </div>
+        <div className="filebase flex-center">
+          <FileBase
+            type="file"
+            multiple={false}
+            name="profilePicture"
+            fullWidth
+            value={formData.profilePicture}
+            onDone={({ base64 }: any) =>
+              setFormData({ ...formData, profilePicture: base64 })
+            }
+          />
+          <Button color="error" onClick={resetForm}>
+            discard
+          </Button>
+        </div>
+        <div className="">
           <InputForm
             label="Username"
             name="userName"
@@ -187,72 +196,60 @@ function SignUpForm() {
             placeholder="First Name"
             variant="standard"
             value={formData.userName}
-            sx={{ width: 200, input: { color: "white" } }}
+            sx={placeholder_styles}
             onChange={handleChange}
           />
-        </FormControl>
-        <InputForm
-          label="email"
-          type="email"
-          name="email"
-          placeholder="example@email.com"
-          variant="standard"
-          value={formData.email}
-          sx={{ width: 200, input: { color: "white" } }}
-          onChange={handleChange}
-        />
-        <InputForm
-          type="date"
-          label="BirthDay"
-          variant="standard"
-          name="birthDay"
-          value={formData.birthDay}
-          sx={{ width: 200, input: { color: "white" } }}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          onChange={handleChange}
-        />
-        <InputForm
-          label="password"
-          type="password"
-          variant="standard"
-          value={password}
-          placeholder="password"
-          name="password"
-          color="secondary"
-          sx={{ width: 200, input: { color: "white" } }}
-          onChange={handleChange}
-        />
-        <InputForm
-          type="password"
-          label="confirm password"
-          variant="standard"
-          value={confirmPassword}
-          sx={{ width: 200, input: { color: "white" } }}
-          placeholder="confirm password"
-          name="confirmPassword"
-          color="secondary"
-          onChange={handleChange}
-        />
-        <ButtonForm
-          // className={classes.googleButton}
-          color="primary"
-          fullWidth
-          startIcon={<Icon />}
-          vaiant="contained">
-          {" "}
-          Google Sign in
-        </ButtonForm>
-        <ButtonForm
-          className={styles.buttonBox}
-          startIcon={<LockOpenIcon />}
-          variant="outlined"
-          color="success"
-          type="submit"
-          sx={{ width: 200, input: { color: "white" } }}>
-          Sign Up
-        </ButtonForm>
+          <InputForm
+            label="email"
+            type="email"
+            name="email"
+            placeholder="example@email.com"
+            variant="standard"
+            value={formData.email}
+            sx={placeholder_styles}
+            onChange={handleChange}
+          />
+          <InputForm
+            label="password"
+            type="password"
+            variant="standard"
+            value={password}
+            placeholder="password"
+            name="password"
+            color="secondary"
+            sx={placeholder_styles}
+            onChange={handleChange}
+          />
+          <InputForm
+            type="password"
+            label="confirm password"
+            variant="standard"
+            value={confirmPassword}
+            sx={placeholder_styles}
+            placeholder="confirm password"
+            name="confirmPassword"
+            color="secondary"
+            onChange={handleChange}
+          />
+          <ButtonForm
+            // className={classes.googleButton}
+            color="primary"
+            fullWidth
+            startIcon={<Icon />}
+            vaiant="contained">
+            {" "}
+            Google Sign in
+          </ButtonForm>
+          <ButtonForm
+            className={styles.buttonBox}
+            startIcon={<LockOpenIcon />}
+            variant="outlined"
+            color="success"
+            type="submit"
+            sx={placeholder_styles}>
+            Sign Up
+          </ButtonForm>
+        </div>
       </form>
     </>
   );

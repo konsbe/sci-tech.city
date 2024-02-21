@@ -2,17 +2,11 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Navbar } from "@/src/components/Navbar";
 import { RoutingNavLayout } from "@/src/components/Navbar/Routes";
-import { Inter } from "next/font/google";
 
-import ErrorBoundary from "@/src/components/ErrorBoundary";
-import { Suspense } from "react";
-import Loading from "./loading";
 import { ModalProvider } from "../providers/ModalProvider";
 import { AuthProvider } from "../providers/AuthProvider";
 import { WebSocketProvider } from "../providers/WebSocketProvider";
 import { WebRTCProvider } from "../providers/WebRTCProvider";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "sci-teck",

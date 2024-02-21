@@ -56,7 +56,7 @@ const SettingsFormComponent = ({ header = "Profile" }) => {
   };
   const submitButton = async () => {
     
-    const response = await fetch("http://localhost:24550/write_trainer", {
+    const response = await fetch("http://localhost:8082/update_profile_data", {
       method: "POST",
       body: JSON.stringify({ ...userData }),
       headers: {
