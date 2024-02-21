@@ -144,7 +144,6 @@ const WebSocketProvider = ({ children }: any) => {
       case EnumStatus[EnumStatus.CALLENDED]:
           setCallAccepted("");
           setCallEnded(callData.receiverName);
-          console.log("callData.receiverName: ", callData.receiverName);
           
           const obj: any = JSON.parse(payloadData.message);
         break;
@@ -156,7 +155,6 @@ const WebSocketProvider = ({ children }: any) => {
   const onPrivateMessageReceived = async (payload: any) => {
     let payloadData = JSON.parse(payload.body);
     if (!payloadData) return;
-    console.log("payload::", payload);
     
     if (payloadData.status == EnumStatus[EnumStatus.CALLOFFER]) {
       setCallData((prev: any) => {
@@ -177,9 +175,7 @@ const WebSocketProvider = ({ children }: any) => {
       });
     } else if (payloadData.status == EnumStatus[EnumStatus.CANDIDATE]) {
       setCallChats((prevSet) => {
-        const arr = prevSet.map((r) => {
-          console.log("payloadData.senderName:: ", payloadData.senderName);
-          
+        const arr = prevSet.map((r) => {     
           return Object.keys(r).includes(payloadData.senderName)
             ? {
                 [`${payloadData.senderName}`]: {
@@ -192,8 +188,6 @@ const WebSocketProvider = ({ children }: any) => {
               }
             : r;
         });
-        console.log("arr: ",arr);
-        
         return arr;
       });
     }
@@ -204,8 +198,6 @@ const WebSocketProvider = ({ children }: any) => {
 
     if (payloadData.status == EnumStatus[EnumStatus.CALLENDED]) {
       setCallAccepted("");
-      console.log("callData.receiverName onPrivateMessageReceived: ", payloadData.senderName);
-
       setCallEnded(payloadData.senderName);
       const obj: any = JSON.parse(payloadData.message);
     }

@@ -64,13 +64,16 @@
 }
 
 .chat-container {
+  width: 80%;
+  border: 1px solid black;
+}
+.chat-container-with-video {
   width: 50%;
   border: 1px solid black;
 }
 .video-container{
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   height:100%;
   margin-left:15px
 }

@@ -78,7 +78,7 @@ export const SpaceComponent = () => {
             </div>
           ))}
         </div>
-        <div className="chat-container">
+        <div className={(localStream && remoteStream)? "chat-container-with-video" : "chat-container"}>
           <div className="chat-inbox-container">
             <div className="chat-inbox">
               <div className="fixed-center flex-center-col">
@@ -104,7 +104,7 @@ export const SpaceComponent = () => {
                         : callButtonOnClick
                     }
                     disabled={
-                      Boolean(remoteStream) ||
+                      Boolean(localStream) ||
                       Boolean(callData.callerName === userContextData.username)
                     }>
                     {Boolean(
@@ -174,7 +174,7 @@ export const SpaceComponent = () => {
             videoStream={{ callButtonOnClick }}
           />
         </div>
-        <div className="video-container">
+        {(localStream && remoteStream) && <div className="video-container">
             <VideoComponent
               stream={isScreenSharing || shareScreenStream ? shareScreenStream : localStream}
               title={userContextData.username}
@@ -183,7 +183,7 @@ export const SpaceComponent = () => {
               stream={remoteStream}
               title={messageData.receiverName}
             />
-        </div>
+        </div>}
       </div>
       <CreateRoom />
     </>

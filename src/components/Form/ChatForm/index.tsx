@@ -17,11 +17,18 @@ const ChatForm = ({ userProps, handlePushMessage, videoStream }: any) => {
             return { ...prev, message: e.target.value };
           })
         }
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handlePushMessage(userProps.messageData);
+          }
+        }}
       />
       <div className="chat-button-group">
         <button
           className="chat-button"
-          onClick={() => handlePushMessage(userProps.messageData)}>
+          onClick={() => handlePushMessage(userProps.messageData)}
+          >
           Send
         </button>
         <button className="camera-button" onClick={() => videoStream.callButtonOnClick()}>

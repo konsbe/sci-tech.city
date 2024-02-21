@@ -183,6 +183,16 @@ scrollbar-container > p {
   /* width: 50%; */
 }
 
+.nav-bar-call-notification{
+  margin-left: 20px;
+  margin-right: 20px;
+  background-color: rgb(210, 253, 91);
+}
+.nav-bar-call-notifications{
+  display: flex;
+  flex-direction: row;
+}
+
 .w-40 {
   width: 40%;
 }

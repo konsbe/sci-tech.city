@@ -63,7 +63,7 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
     callEnded
   }: any = useContext(WebSocketContext);
 
-  const pc = useRef(webRTC);
+  let pc = useRef(webRTC);
   const callInput = useRef(null);
 
   useEffect(() => {
@@ -110,6 +110,10 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
     setCallChats((prev: []) => {
       const newArr = prev.filter(obj => !Object.keys(obj).includes(callEnded))
       return newArr 
+    })
+    setCallData({
+      callerName: "",
+      receiverName: "",
     })
     callEnded && closeCallOnClick(callEnded, []);
   }, [callEnded]);
@@ -232,7 +236,6 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
 
   const callButtonOnClick = async () => {
     // Get candidates for caller, save to WebSocket
-    
     if (!localStream){
       setIsMyCameraEnabled(true)
       await webcamButtonOnClick(true, true);
@@ -425,7 +428,8 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
 
   const handleReceiverAnswer = async (answerMessage: any) => {
     if(!pc.current) return;
-
+    console.log("answerMessage: ", answerMessage);
+    
     try {
       // Parse the answer message
       const { answer, user }: { answer: RTCSessionDescription; user: any } =
@@ -444,7 +448,6 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
       // Handle ICE candidates from the receiver (if any)
       // if (user && user.userId === messageData.receiverName) {
       // Extract and handle ICE candidates
-      // console.log("callChats: ", callChats);
       const receivedOffer = callChats.find((r: any) =>
         Object.keys(r).includes(user.username)
       );
@@ -463,39 +466,39 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
   };
 
   const closeCallOnClick = async (room: string, rooms: any) => {
-    console.log("room:: ",room);
-        try {
-
-    const answerMessage = {
-      answer: {
-        user: userContextData.username,
-        type: "END-CALL",
-      },
-      user: userContextData,
-    };
-    console.log("answerMessage: ", answerMessage);
-    
-    sendValue(
-      "private.message",
-      JSON.stringify(answerMessage),
-      room,
-      EnumStatus[EnumStatus.CALLENDED]
-    );
-
-    if (pc.current) {
-      pc.current.close();
-      if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-      }
-      if (remoteStream) {
-        remoteStream.getTracks().forEach(track => track.stop());
-      }
+    try {
+      const answerMessage = {
+        answer: {
+          user: userContextData.username,
+          type: "END-CALL",
+        },
+        user: userContextData,
+      };
       
-      setLocalStream(null);
-      setRemoteStream(null);
-      // Send the answer message over WebSocket
-    }
+      sendValue(
+        "private.message",
+        JSON.stringify(answerMessage),
+        room,
+        EnumStatus[EnumStatus.CALLENDED]
+      );
+
+      if (pc?.current) {
+        pc.current.close();
+        if (localStream) {
+          localStream.getTracks().forEach(track => track.stop());
+        }
+        if (remoteStream) {
+          remoteStream.getTracks().forEach(track => track.stop());
+        }
+        
+        setLocalStream(null);
+        setRemoteStream(null);
+        
+        // Send the answer message over WebSocket
+      }
+      pc.current = new RTCPeerConnection(servers);
     } catch (error) {
+      if (!pc?.current) pc.current = new RTCPeerConnection(servers);
       console.error("Error handling receiver answer:", error);
     }
   }

@@ -24,7 +24,7 @@ const VideoComponent = ({
   }, [stream,videoRef]);
 
   return (
-    <div >
+    <div className="video-comp">
       <span>{title}</span>
       <video
         ref={videoRef}
