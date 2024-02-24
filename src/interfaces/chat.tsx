@@ -28,3 +28,4 @@ export type TypeChats = { [key: string]: TypeChat };
 export type ChatItem = {
   [key: string]: { offer: MediaStream }; // Replace YourOfferType with the actual type of 'offer'
 };
+

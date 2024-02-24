@@ -1,32 +1,24 @@
 "use client";
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ButtonForm from "../Form/ButtonForm";
 import InputForm from "../Form/InputForm";
 import Icon from "./icon";
-import { Button, ButtonGroup } from "@mui/material";
+import { Button, ButtonGroup, Input, colors } from "@mui/material";
 import styled from "@emotion/styled";
-import FileBase from "react-file-base64";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import styles from "@/src/styles/Form.module.css";
 import Profile from "./Profile";
 import { hashCompareFunction, hashFunction } from "@/src/utils/bcrypt";
 import { createUser } from "@/src/app/actions";
+import { Base64, UserInfo } from "@/src/interfaces/user";
+import { convertBase64 } from "@/src/utils/image";
 
 const initialState = {
   userName: "",
   email: "",
-  birthDay: "",
   password: "",
   confirmPassword: "",
   profilePicture: "",
-};
-type UserInfo = {
-  userName: string;
-  email: string;
-  birthDay: string;
-  password: string;
-  confirmPassword: string;
-  profilePicture: string | ArrayBuffer | null;
 };
 
 const fetchCharacters = async (page: number) => {
@@ -49,6 +41,7 @@ function SignUpForm() {
   const [formData, setFormData] = useState<UserInfo>(initialState);
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(true);
+  const [confirmPassBool, setConfirmPassBool] = useState(true);
   const placeholder_styles = {
     width: "100%",
     marginBottom: 1,
@@ -57,7 +50,10 @@ function SignUpForm() {
         // <----- Add this.
         opacity: 1,
       },
+      //input font-color
+      color: "white",
     },
+    //label placeholder font-color
     label: { color: "white" },
   }
   const handleSubmit = async (e: React.SyntheticEvent | React.FormEvent) => {
@@ -70,22 +66,36 @@ function SignUpForm() {
       alert("password is not the same");
     }
   };
-
+  
+  const uploadImage = async (e: React.ChangeEvent<HTMLInputElement> | any) => {
+    const file = e.target.files[0];
+    const base64: Base64<"png" | "jpg" | "jpeg"> | any = await convertBase64(
+      file
+    );
+    setFormData({ ...formData, profilePicture: base64 })
+  };
+  
   const handleChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
+      let hashedPassword: string;
+      let hashedConfirmPassword: string;
       if (e.target.name === "password") {
         setPassword(e.target.value);
-        const hashedPassword = await hashFunction(e.target.value);
-        setFormData({
-          ...formData,
-          password: String(hashedPassword),
+        hashedPassword = await hashFunction(e.target.value);
+        setFormData(() => {
+          return {
+            ...formData,
+            password: String(hashedPassword),
+          }
         });
       } else if (e.target.name === "confirmPassword") {
         setConfirmPassword(e.target.value);
-        const hashedConfirmPassword = await hashFunction(e.target.value);
-        setFormData({
-          ...formData,
-          confirmPassword: String(hashedConfirmPassword),
+        hashedConfirmPassword = await hashFunction(e.target.value);
+        setFormData(() => {
+          return {
+            ...formData,
+            confirmPassword: String(hashedConfirmPassword),
+          }
         });
       } else {
         setFormData({
@@ -95,47 +105,53 @@ function SignUpForm() {
       }
     },
     [formData]
-  );
-
-  const resetForm = () => {
-    setPassword("");
-    setConfirmPassword("");
-    setFormData(initialState);
-    if (!formData.profilePicture) {
-      setFormData({ ...formData, profilePicture: data.image });
-    }
-  };
-
-  const changeCharacter = (stm: string) => {
-    if (stm === "increment") {
-      if (page === 826) {
-        setPage(1);
-      } else {
-        setPage(page + 1);
+    );
+    
+    const resetForm = () => {
+      setPassword("");
+      setConfirmPassword("");
+      setFormData(initialState);
+      if (!formData.profilePicture) {
+        setFormData({ ...formData, profilePicture: data.image });
       }
-    } else {
-      if (page === 1) {
-        setPage(826);
-      } else {
-        setPage(page - 1);
-      }
-    }
-  };
-
-  const imageToBase64 = async (data: any) => {
-    const imageResponse = await fetch(data.image);
-    const imageBlob = await imageResponse.blob();
-    const reader = new FileReader();
-    reader.readAsDataURL(imageBlob);
-    reader.onloadend = () => {
-      const base64Image = reader.result;
-      setFormData({ ...formData, profilePicture: base64Image });
     };
-  };
+    
+    const changeCharacter = (stm: string) => {
+      if (stm === "increment") {
+        if (page === 826) {
+          setPage(1);
+        } else {
+          setPage(page + 1);
+        }
+      } else {
+        if (page === 1) {
+          setPage(826);
+        } else {
+          setPage(page - 1);
+        }
+      }
+    };
+    
+    const imageToBase64 = async (data: any) => {
+      const imageResponse = await fetch(data.image);
+      const imageBlob = await imageResponse.blob();
+      const reader = new FileReader();
+      reader.readAsDataURL(imageBlob);
+      reader.onloadend = () => {
+        const base64Image = reader.result;
+        setFormData({ ...formData, profilePicture: base64Image });
+      };
+    };
 
-  useEffect(() => {
-    fetchCharacters(page).then((result) => {
-      setData(result);
+    useEffect(() => {
+      hashCompareFunction(confirmPassword, formData.password).then((res) => {
+        if (typeof res === 'boolean') setConfirmPassBool(res)
+      });
+    },[confirmPassword, formData.password])
+    
+    useEffect(() => {
+      fetchCharacters(page).then((result) => {
+        setData(result);
       imageToBase64(result);
       setLoading(false);
     });
@@ -174,15 +190,16 @@ function SignUpForm() {
       </Container>
       <form onSubmit={handleSubmit} className={styles.signUpform}>
         <div className="filebase flex-center">
-          <FileBase
+          <Input
+            id="standard-basic"
             type="file"
-            multiple={false}
-            name="profilePicture"
+            onChange={(e: any) => {
+              uploadImage(e);
+              // setUserData({ ...userData, image: e.target.value });
+            }}
+            style={{ marginBottom: "1rem" }}
             fullWidth
-            value={formData.profilePicture}
-            onDone={({ base64 }: any) =>
-              setFormData({ ...formData, profilePicture: base64 })
-            }
+            sx={placeholder_styles}
           />
           <Button color="error" onClick={resetForm}>
             discard
@@ -228,7 +245,8 @@ function SignUpForm() {
             sx={placeholder_styles}
             placeholder="confirm password"
             name="confirmPassword"
-            color="secondary"
+            color={confirmPassBool ? "secondary" : "error"}
+            error={!confirmPassBool}
             onChange={handleChange}
           />
           <ButtonForm

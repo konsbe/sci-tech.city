@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { UserInfo } from "../interfaces/user";
 
 export async function createCookie(data: any) {
   const cookiesList = cookies();
@@ -22,11 +23,22 @@ export async function getCookie(name: string) {
   return hasCookie;
 }
 
-export async function createUser(data: any) {
+export async function createUser(data: UserInfo) {
+
+  const reqBody = {
+    user_id: Date.now(),
+    username: data.userName, 
+    email: data.email,
+    picture: data.profilePicture,
+    created_at: Date.now(), 
+    password : data.password,
+  }
+  console.log("reqBody: ", reqBody);
+  
   const response = await fetch(`http://localhost:8082/api/keycloak-service/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: JSON.stringify(reqBody),
   });
 
   const res: any = await response.json();
