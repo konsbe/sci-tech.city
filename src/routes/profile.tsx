@@ -2,6 +2,7 @@
 import { Avatar, Button, Input, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { getCookie } from "../app/actions";
+import { convertBase64 } from "../utils/image";
 
 export interface IProps {
   baseImage: any;
@@ -40,20 +41,7 @@ const SettingsFormComponent = ({ header = "Profile" }) => {
     setBaseImage(base64);
   };
 
-  const convertBase64 = (file: any) => {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
 
-      fileReader.onload = () => {
-        resolve(fileReader.result);
-      };
-
-      fileReader.onerror = (error) => {
-        reject(error);
-      };
-    });
-  };
   const submitButton = async () => {
     
     const response = await fetch("http://localhost:8082/update_profile_data", {
