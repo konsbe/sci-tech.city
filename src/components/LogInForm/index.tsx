@@ -9,6 +9,7 @@ import styles from "@/src/styles/Form.module.css";
 import { login } from "@/src/app/actions";
 import { usePathname, useRouter } from "next/navigation";
 import { AuthContext } from "@/src/providers/AuthProvider";
+import { hashFunction } from "@/src/utils/bcrypt";
 
 const initialState = {
   username: "",
@@ -26,7 +27,16 @@ function LoginForm(): JSX.Element {
 
   const handleSubmit = async (e: React.SyntheticEvent | React.FormEvent) => {
     e.preventDefault();
-    const loginUser = await login(formData);
+    const formDataDTO = {
+      ...formData,
+      password: await hashFunction(formData.password),
+    };
+    
+    const loginUser = await login(formDataDTO);
+    loginUser[1] && localStorage.setItem("image", JSON.stringify(loginUser[1]?.picture));
+    loginUser[1] && localStorage.setItem("image_type", JSON.stringify(loginUser[1]?.image_type));
+
+    
     return loginUser?.access_token ? router.push("/") : null;
   };
 

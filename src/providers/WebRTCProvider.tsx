@@ -428,7 +428,6 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
 
   const handleReceiverAnswer = async (answerMessage: any) => {
     if(!pc.current) return;
-    console.log("answerMessage: ", answerMessage);
     
     try {
       // Parse the answer message

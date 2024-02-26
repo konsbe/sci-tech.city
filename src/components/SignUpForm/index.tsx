@@ -59,7 +59,7 @@ function SignUpForm() {
   const handleSubmit = async (e: React.SyntheticEvent | React.FormEvent) => {
     e.preventDefault();
 
-    if (await hashCompareFunction(confirmPassword, formData.password)) {
+    if (await hashCompareFunction(formData.confirmPassword, formData.password)) {
       const sub = await createUser(formData);
       return sub;
     } else {
@@ -144,10 +144,10 @@ function SignUpForm() {
     };
 
     useEffect(() => {
-      hashCompareFunction(confirmPassword, formData.password).then((res) => {
+      hashCompareFunction(formData.confirmPassword, formData.password).then((res) => {
         if (typeof res === 'boolean') setConfirmPassBool(res)
       });
-    },[confirmPassword, formData.password])
+    },[formData.confirmPassword, formData.password])
     
     useEffect(() => {
       fetchCharacters(page).then((result) => {

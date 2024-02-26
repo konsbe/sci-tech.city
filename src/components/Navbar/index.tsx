@@ -38,15 +38,16 @@ export const Navbar = () => {
         lastName: payload?.given_name || "",
         email: payload?.email || "",
         username: payload?.preferred_username || "",
+        profilePicture: String(String(localStorage.getItem("image_type")).replace(/"/g, '') + "," + String(localStorage.getItem("image")).replace(/"/g, '')),
         userId: payload?.sub || "",
       });
     });
   }, [pathname, accessToken]);
-
+  
   return (
     <nav className={styles.navbar}>
       <a className={styles.btn}>
-        <Avatar onClick={() => router.push("/profile")} sx={{ ml: 2 }} alt={"k"}></Avatar>
+        <Avatar src={userContextData.profilePicture} onClick={() => router.push("/profile")} sx={{ ml: 2 }} alt={userContextData.email[0]}></Avatar>
       </a>
       <div className="nav-bar-call-notifications">
         {calls.map((call, index) => {

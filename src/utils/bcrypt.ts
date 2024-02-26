@@ -1,12 +1,13 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 export const hashFunction: (unHashString: string) => Promise<string> = async (
   unHashString: string
 ) => {
   try {
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(unHashString, salt);
-    return hash;
+    const hashedString = crypto.createHash('sha256').update(unHashString).digest('hex');
+
+    return hashedString;
   } catch (err) {
     return "error";
   }
@@ -14,20 +15,24 @@ export const hashFunction: (unHashString: string) => Promise<string> = async (
 
 export const hashCompareFunction: (
   password: string,
-  hashedPassword: string
+  confirmPassword: string
 ) => Promise<boolean | undefined> = async (
   password: string,
-  hashedPassword: string
+  confirmPassword: string
 ) => {
   try {
     const isMatch = await new Promise((resolve, reject) => {
-      bcrypt.compare(password, hashedPassword, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
+      // const hashPass = hashFunction(password).then((res) =>{return res})
+      // const hashConfPsw = hashFunction(confirmPassword).then((res) =>{return res})
+      const isMatch = password === confirmPassword
+      
+      // bcrypt.compare(password, confirmPassword, (err, result) => {
+        // if (isMatch) {
+          // reject(isMatch);
+        // } else {
+          resolve(isMatch);
+        // }
+      // });
     });
 
     if (isMatch) {

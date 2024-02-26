@@ -33,7 +33,6 @@ export async function createUser(data: UserInfo) {
     created_at: Date.now(), 
     password : data.password,
   }
-  console.log("reqBody: ", reqBody);
   
   const response = await fetch(`http://localhost:8082/api/keycloak-service/signup`, {
     method: "POST",
@@ -54,6 +53,7 @@ export async function decodeToken(accessToken: string) {
 }
 
 export const login = async (data: { username: string; password: string }) => {
+  
   const response = await fetch(
     "http://localhost:8082/api/keycloak-service/signin",
     {
@@ -64,13 +64,20 @@ export const login = async (data: { username: string; password: string }) => {
   );
 
   const res: any = await response.json();
-  const parts = res?.access_token?.split(".");
+  const resToken = res[0] ? res[0] : res
+  const parts = resToken?.access_token?.split(".");
+  
   // const header = JSON.parse(atob(parts[0]));
+  
   const payload = JSON.parse(atob(parts[1]));
     
   await createCookie({
     name: "access_token",
-    value: res?.access_token,
+    value: res[0]?.access_token,
+  });
+  await createCookie({
+    name: "profile_data",
+    value: res[1] ? res[1] : res,
   });
   const cookie = await createCookie({
     name: "user",

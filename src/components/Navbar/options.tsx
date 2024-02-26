@@ -29,8 +29,8 @@ export const pages = [
     icon: <HomeIcon />,
   },
   {
-    title: "ABOUT",
-    path: "/chat-room",
+    title: "SPACE",
+    path: "/space",
     icon: <InfoIcon />,
   },
   {
