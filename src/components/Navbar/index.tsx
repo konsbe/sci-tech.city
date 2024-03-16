@@ -26,7 +26,7 @@ export const Navbar = () => {
       return null;
     }
   };
-  console.log("WebSocketContext: ", [...new Set([...callChats])]);
+  // console.log("WebSocketContext: ", [...new Set([...callChats])]);
   
   useEffect(() => {
     fetchCookie();
@@ -48,6 +48,9 @@ export const Navbar = () => {
     <nav className={styles.navbar}>
       <a className={styles.btn}>
         <Avatar src={userContextData.profilePicture} onClick={() => router.push("/profile")} sx={{ ml: 2 }} alt={userContextData.email[0]}></Avatar>
+      </a>
+      <a style={{color:'white'}}>
+      {userContextData.username}
       </a>
       <div className="nav-bar-call-notifications">
         {calls.map((call, index) => {

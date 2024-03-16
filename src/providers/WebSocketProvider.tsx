@@ -16,6 +16,7 @@ const WebSocketProvider = ({ children }: any) => {
   const [callChats, setCallChats] = useState<any[]>([]);
   const [callAccepted, setCallAccepted] = useState<string>();
   const [callEnded, setCallEnded] = useState<string>("");
+  const [callEndedFlag, setCallEndedFlag] = useState<boolean>(false);
   const [publicChats, setPublicChats] = useState<any[]>([]);
   const [privateChats, setPrivateChats] = useState<TypeChats>({});
 
@@ -48,7 +49,7 @@ const WebSocketProvider = ({ children }: any) => {
         const socket = new SockJS(socketURL);
         stompClient = Stomp.over(socket);
 
-        // stompClient.debug = () => {};
+        stompClient.debug = () => {};
         // stompClient = over(socket);
         // let stompClient = Stomp.client(socketURL);
 
@@ -101,7 +102,7 @@ const WebSocketProvider = ({ children }: any) => {
 
     switch (payloadData.status) {
       case EnumStatus[EnumStatus.JOIN]:
-        payloadData?.connctedUsers.map((entry: string) => {
+        payloadData?.connctedUsers?.map((entry: string) => {
           if (!privateChats[`${entry}`]) {
             setPrivateChats((prev) => {
               return { ...prev, [`${entry}`]: [] };
@@ -143,6 +144,8 @@ const WebSocketProvider = ({ children }: any) => {
         break;
       case EnumStatus[EnumStatus.CALLENDED]:
           setCallAccepted("");
+          console.log("here called 2");
+          
           setCallEnded(callData.receiverName);
           
           const obj: any = JSON.parse(payloadData.message);
@@ -192,12 +195,18 @@ const WebSocketProvider = ({ children }: any) => {
       });
     }
     if (payloadData.status == EnumStatus[EnumStatus.CALLACCEPTED]) {
-      setCallAccepted(callData.receiverName);
+      // setCallData({
+      //     callerName: payloadData.senderName,
+      //     receiverName: userContextData.username,
+      // });
+      setCallAccepted(userContextData.username);
       const obj: any = JSON.parse(payloadData.message);
     }
-
+    
     if (payloadData.status == EnumStatus[EnumStatus.CALLENDED]) {
       setCallAccepted("");
+      console.log("here called");
+      setCallEndedFlag((prev: boolean) => {return !prev})
       setCallEnded(payloadData.senderName);
       const obj: any = JSON.parse(payloadData.message);
     }
@@ -248,6 +257,7 @@ const WebSocketProvider = ({ children }: any) => {
           };
         });
       }
+
       stompClient?.send(
         `/app/${messageReceiver}`,
         {},
@@ -290,7 +300,9 @@ const WebSocketProvider = ({ children }: any) => {
     sendValue,
     callAccepted,
     setCallAccepted,
-    callEnded
+    callEnded,
+    setCallEnded,
+    callEndedFlag
   };
 
   return (

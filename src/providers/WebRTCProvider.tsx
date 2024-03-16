@@ -57,10 +57,14 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
     setCallChats,
     privateChats,
     messageData,
+    setMessageData,
+    handlePushMessage,
+    cookie,
     sendValue,
     callAccepted,
     setCallAccepted,
-    callEnded
+    callEnded,
+    setCallEnded,
   }: any = useContext(WebSocketContext);
 
   let pc = useRef(webRTC);
@@ -68,21 +72,31 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
 
   useEffect(() => {
     if (callData.receiverName === userContextData.username) return;
-
+    if (!privateChats[`${callData.receiverName}`]?.length) return;
+    console.log("effect1");
+    
+    // if(!callData.receiverName || !callData.receiverName) return;
+    
     handleReceiverAnswer(
       privateChats[`${callData.receiverName}`][
         privateChats[`${callData.receiverName}`]?.length - 1
       ]?.message
-    );
-  }, [callAccepted]);
-
-  // useEffect(() => {
-  //   pc.current.addEventListener("track", async (ev) => {
-  //     const newRemoteStream = ev.streams;
-  //     setRemoteStream(newRemoteStream[0]);
-  //   });
-  // }, []);
-
+      );
+    }, [callAccepted]);
+    
+    
+    
+  //   useEffect(() => {
+  //     if (callData.receiverName === userContextData.username) return;
+  //     if (!privateChats[`${callData.receiverName}`]?.length) return;
+  //     console.log("effect2");
+    
+  //   handleReceiverAnswer(
+  //     privateChats[`${callData.receiverName}`][
+  //       privateChats[`${callData.receiverName}`]?.length - 1
+  //     ]?.message
+  //   );
+  // }, [callAccepted]);
 
   const toggleFullScreen = () => {
     if (document.documentElement.requestFullscreen) {
@@ -95,18 +109,12 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
     }
   };
 
-  useEffect(() => {
-    if (callData.receiverName === userContextData.username) return;
-    if (!privateChats[`${callData.receiverName}`]?.length) return;
-    
-    handleReceiverAnswer(
-      privateChats[`${callData.receiverName}`][
-        privateChats[`${callData.receiverName}`]?.length - 1
-      ]?.message
-    );
-  }, [callAccepted]);
 
   useEffect(() => {
+    console.log("callEnded: ", callEnded);
+    console.log("Boolean(callEnded): ", Boolean(callEnded));
+    //TODO: fix the infinitive loop that seCallEnded is causing
+    // if(callEnded === "") return;
     setCallChats((prev: []) => {
       const newArr = prev.filter(obj => !Object.keys(obj).includes(callEnded))
       return newArr 
@@ -115,6 +123,8 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
       callerName: "",
       receiverName: "",
     })
+    console.log("callEndedcallEndedcallEndedcallEndedcallEnded");
+    
     callEnded && closeCallOnClick(callEnded, []);
   }, [callEnded]);
 
@@ -344,7 +354,7 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
         setIsMyCameraEnabled(true)
         await webcamButtonOnClick(true, true);
       }
-  
+
       const receivedOffer = rooms.find((r: any) =>
         Object.keys(r).includes(room)
       );
@@ -392,6 +402,7 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
       // Set the remote offer as the remote description
       await pc.current.setRemoteDescription(remoteOffer);
 
+
       // adds the ICE candidates received from the caller using
       receivedOffer[`${room}`].candidates.map((change: any) => {
         const iceCandidate = new RTCIceCandidate(JSON.parse(change));
@@ -414,6 +425,7 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
         user: userContextData,
       };
 
+
       // Send the answer message over WebSocket
       sendValue(
         "private.message",
@@ -421,68 +433,76 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
         room,
         EnumStatus[EnumStatus.CALLACCEPTED]
       );
+  
     } catch (error) {
       console.error("Error creating or sending answer:", error);
     }
   };
 
   const handleReceiverAnswer = async (answerMessage: any) => {
-    if(!pc.current) return;
+    if (!pc.current) return;
+    console.log("answerMessage: ", answerMessage);
     
     try {
       // Parse the answer message
-      const { answer, user }: { answer: RTCSessionDescription; user: any } =
+      const { answer, user, type }: { answer: RTCSessionDescriptionInit | null; user: any; type: RTCSdpType } =
         JSON.parse(answerMessage);
-      // Set the remote description with the received answer
-      if (pc.current.signalingState !== "have-remote-offer") {
-        const answerDescription = new RTCSessionDescription(answer);
-        await pc.current.setRemoteDescription(answerDescription);
-      } else {
-        // Handle the case where setting the remote description is not allowed in the current state.
+      console.log("answer, user: ", answer, user);
+      
+      if ((!answer || !answer.type) && !type) {
+        console.error(`Invalid answer type: ${type} received from user: ${user}`);
+        return;
+      }
+      
+      // Check if the connection is in the correct state to set the remote description
+      console.log("Signaling state before setRemoteDescription:", pc.current.signalingState);
+      if (pc.current.signalingState !== "have-local-offer" && pc.current.signalingState !== "stable") {
         console.warn(
           "Cannot set remote description in the current state:",
           pc.current.signalingState
         );
+        return;
       }
+      if (answer) {
+        const answerDescription = new RTCSessionDescription(answer);
+        await pc.current.setRemoteDescription(answerDescription);
+      }
+      
+      // Set the remote description with the received answer
+  
       // Handle ICE candidates from the receiver (if any)
-      // if (user && user.userId === messageData.receiverName) {
-      // Extract and handle ICE candidates
       const receivedOffer = callChats.find((r: any) =>
-        Object.keys(r).includes(user.username)
+        Object.keys(r).includes(user.username ? user.username : user)
       );
-
+      console.log("receivedOffer: ", receivedOffer);
+      console.log("callChats: ", callChats);
+      
       const iceCandidates =
         receivedOffer[`${messageData.receiverName}`].candidates;
-
+  
       iceCandidates.forEach((candidate: any) => {
         const iceCandidate = new RTCIceCandidate(candidate);
-        if(!pc.current) return;
+        if (!pc.current) return;
         pc.current.addIceCandidate(iceCandidate);
       });
     } catch (error) {
       console.error("Error handling receiver answer:", error);
     }
   };
+  
 
   const closeCallOnClick = async (room: string, rooms: any) => {
     try {
-      const answerMessage = {
-        answer: {
-          user: userContextData.username,
-          type: "END-CALL",
-        },
-        user: userContextData,
+      const endCallMessage = {
+        type: "END-CALL",
+        user: userContextData.username,
       };
-      
-      sendValue(
-        "private.message",
-        JSON.stringify(answerMessage),
-        room,
-        EnumStatus[EnumStatus.CALLENDED]
-      );
-
+  
+      // Send end call message over WebSocket
+      sendValue("private.message", JSON.stringify(endCallMessage), room, EnumStatus[EnumStatus.CALLENDED]);
+  
+      // Close peer connection and stop streams
       if (pc?.current) {
-        pc.current.close();
         if (localStream) {
           localStream.getTracks().forEach(track => track.stop());
         }
@@ -490,17 +510,16 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
           remoteStream.getTracks().forEach(track => track.stop());
         }
         
-        setLocalStream(null);
-        setRemoteStream(null);
-        
-        // Send the answer message over WebSocket
+        // pc.current.close();
       }
-      pc.current = new RTCPeerConnection(servers);
+      
+      setLocalStream(null);
+      setRemoteStream(null);
+      setIsMyCameraEnabled(false);
     } catch (error) {
-      if (!pc?.current) pc.current = new RTCPeerConnection(servers);
       console.error("Error handling receiver answer:", error);
     }
-  }
+  };
   const rejectButtonOnClick = async (room: string, rooms: any) => {
     if(!pc.current) return;
 
@@ -543,7 +562,7 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
         }));
 
         // Close the peer connection
-        pc.current.close();
+        // pc.current.close();
         setLocalStream(null);
         setRemoteStream(null);
       } catch (error) {

@@ -46,6 +46,7 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }: any) => {
       };
     });
   }, []);
+
   const state: any = {
     userContextData,
     setUserContextData,
