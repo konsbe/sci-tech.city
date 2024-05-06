@@ -25,7 +25,7 @@ const VideoComponent = ({
 
   return (
     <div className="video-comp">
-      <span>{title}</span>
+      <span style={{color:'white'}}>{title}</span>
       <video
         ref={videoRef}
         autoPlay

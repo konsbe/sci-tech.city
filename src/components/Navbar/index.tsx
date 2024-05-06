@@ -42,6 +42,7 @@ export const Navbar = () => {
         userId: payload?.sub || "",
       });
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, accessToken]);
   
   return (

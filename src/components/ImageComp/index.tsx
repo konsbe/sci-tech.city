@@ -2,8 +2,8 @@ import Image, { StaticImageData } from "next/image";
 
 interface IProps {
   src: string | StaticImageData;
-  height?: string;
-  width?: string;
+  height: number;
+  width: number;
   alt?: string;
   cardImg?: string;
   onClick?: any;
@@ -15,9 +15,9 @@ const ImageComp = (props: IProps): JSX.Element => {
     <Image
       className={props.cardImg}
       src={props.src}
-      alt={props.alt}
-      width={props.width}
-      height={props.height}
+      alt={props.alt || "img"}
+      width={props?.width}
+      height={props?.height}
     />
   );
 };

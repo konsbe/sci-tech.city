@@ -207,6 +207,9 @@ const WebSocketProvider = ({ children }: any) => {
       setCallAccepted("");
       console.log("here called");
       setCallEndedFlag((prev: boolean) => {return !prev})
+      console.log("onPrivateMessageReceived payloadData.senderName: ", payloadData);
+      console.log("onPrivateMessageReceived callEnded: ", callEnded);
+      
       setCallEnded(payloadData.senderName);
       const obj: any = JSON.parse(payloadData.message);
     }
@@ -284,6 +287,7 @@ const WebSocketProvider = ({ children }: any) => {
     if (typeof window !== "undefined") {
       connect();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userContextData]);
 
   // Value to be provided by the context

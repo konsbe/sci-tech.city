@@ -34,7 +34,7 @@ function Blog(props:any): JSX.Element {
         return <div key={index}>{comment.comment}</div>;
       })}
       <Comment />
-      <CommentForm blogId={blog?._id} />
+      {/* <CommentForm blogId={blog?.id} /> */}
     </div>
   );
 }
