@@ -38,4 +38,9 @@ export const pages = [
     path: "/blog",
     icon: <BookIcon />,
   },
+  {
+    title: "TASK MANAGER",
+    path: "/task-manager",
+    icon: <BookIcon />,
+  },
 ];

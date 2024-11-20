@@ -142,6 +142,11 @@ scrollbar-container > p {
   justify-content: center;
   align-items: center;
 }
+.flex-center-start {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
 
 .flex-center-hor {
   display: flex;
@@ -153,6 +158,11 @@ scrollbar-container > p {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+}
+.flex-col-between {
+  display: flex;
+  justify-content: space-between;
   flex-direction: column;
 }
 .flex-around {
@@ -235,4 +245,10 @@ span > .linkText {
   border-radius: 10px;
   margin: auto;
   text-align: center;
+}
+.pointer-cursor {
+  cursor: pointer;
+}
+.trash-icon:hover {
+  color: red;
 }

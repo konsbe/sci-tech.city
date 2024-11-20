@@ -9,6 +9,7 @@ import { decodeToken, getCookie, logout } from "@/src/app/actions";
 import { AuthContext } from "@/src/providers/AuthProvider";
 import { WebSocketContext } from "@/src/providers/WebSocketProvider";
 import CallIcon from "@mui/icons-material/Call";
+import { ModalContext } from "@/src/providers/ModalProvider";
 
 export const Navbar = () => {
   const router = useRouter();
@@ -17,6 +18,7 @@ export const Navbar = () => {
   const { userContextData, setUserContextData }: any = useContext(AuthContext);
   const { callChats }: any = useContext(WebSocketContext);
   const calls = [...new Set([...callChats])]
+  const { closeModal } = useContext(ModalContext);
 
   const fetchCookie = async () => {
     try {
@@ -46,7 +48,7 @@ export const Navbar = () => {
   }, [pathname, accessToken]);
   
   return (
-    <nav className={styles.navbar}>
+    <nav className={styles.navbar} onClick={closeModal}>
       <a className={styles.btn}>
         <Avatar src={userContextData.profilePicture} onClick={() => router.push("/profile")} sx={{ ml: 2 }} alt={userContextData.email[0]}></Avatar>
       </a>
