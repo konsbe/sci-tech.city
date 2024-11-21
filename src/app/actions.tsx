@@ -34,7 +34,7 @@ export async function createUser(data: UserInfo) {
     password : data.password,
   }
   
-  const response = await fetch(`http://localhost:8082/api/keycloak-service/signup`, {
+  const response = await fetch(`http://localhost:8082/keycloak-service/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(reqBody),
@@ -55,7 +55,8 @@ export async function decodeToken(accessToken: string) {
 export const login = async (data: { username: string; password: string }) => {
   
   const response = await fetch(
-    "http://localhost:8082/api/keycloak-service/signin",
+    
+    "http://localhost:8082/api/auth/signin",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -66,7 +67,8 @@ export const login = async (data: { username: string; password: string }) => {
   const res: any = await response.json();
   const resToken = res[0] ? res[0] : res
   const parts = resToken?.access_token?.split(".");
-  
+
+  if (!res || res.status > 400) return res
   // const header = JSON.parse(atob(parts[0]));
   
   const payload = JSON.parse(atob(parts[1]));
@@ -93,7 +95,7 @@ export const logout = async () => {
   if (!hasCookie) return;
 
   const response = await fetch(
-    "http://localhost:8082/api/keycloak-service/logout",
+    "http://localhost:8082/keycloak-service/logout",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -106,3 +108,4 @@ export const logout = async () => {
 
   return response;
 };
+

@@ -27,7 +27,6 @@ export const RoutingNavLayout = () => {
     const handleScroll = () => {
       setIsSticky(window.scrollY > 65);
     };
-    console.log(window.scrollY);
 
     handleScroll();
     window.addEventListener("scroll", handleScroll);

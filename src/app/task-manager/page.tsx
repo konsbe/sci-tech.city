@@ -1,6 +1,6 @@
 "use client";
 import React, { ChangeEvent, useContext, useState } from "react";
-import "./taskManager.css";
+import "./projectManager.css";
 import { mockData, ProjectType } from "./mockData";
 import CircleIcon from "@mui/icons-material/Circle";
 import AddIcon from "@mui/icons-material/Add";
@@ -8,7 +8,7 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { ModalContext } from "@/src/providers/ModalProvider";
 import Modal from "@/src/components/Modal";
-import { MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
+import { SelectChangeEvent, TextField } from "@mui/material";
 import moment from "moment";
 import Link from "next/link";
 
