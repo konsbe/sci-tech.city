@@ -29,10 +29,10 @@ function Task() {
       <div className="outer-task-container section-backlog">
         <div className="task-devision-section">
           <span className="task-devision-title">Backlog</span>
-          <AddIcon className="add-icon" />
+          <AddIcon className="add-icon pointer-cursor" />
         </div>
         <div className="task-section ">
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div className="title-section">{data.taskName}</div>
@@ -51,11 +51,11 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div>{data.taskName}</div>
@@ -74,11 +74,11 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div>{data.taskName}</div>
@@ -97,8 +97,8 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
         </div>
@@ -106,10 +106,10 @@ function Task() {
       <div className="outer-task-container section-todo">
         <div className="task-devision-section">
           <span className="task-devision-title">To do</span>
-          <AddIcon className="add-icon" />
+          <AddIcon className="add-icon pointer-cursor" />
         </div>
         <div className="task-section ">
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div className="title-section">{data.taskName}</div>
@@ -128,11 +128,11 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div>{data.taskName}</div>
@@ -151,11 +151,11 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div>{data.taskName}</div>
@@ -174,8 +174,8 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
         </div>
@@ -183,10 +183,10 @@ function Task() {
       <div className="outer-task-container section-inprogress">
         <div className="task-devision-section">
           <span className="task-devision-title">In Progress</span>
-          <AddIcon className="add-icon" />
+          <AddIcon className="add-icon pointer-cursor" />
         </div>
         <div className="task-section ">
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div className="title-section">{data.taskName}</div>
@@ -205,11 +205,11 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div>{data.taskName}</div>
@@ -228,11 +228,11 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div>{data.taskName}</div>
@@ -251,8 +251,8 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
         </div>
@@ -260,10 +260,10 @@ function Task() {
       <div className="outer-task-container section-test">
         <div className="task-devision-section">
           <span className="task-devision-title">Test</span>
-          <AddIcon className="add-icon" />
+          <AddIcon className="add-icon pointer-cursor" />
         </div>
         <div className="task-section ">
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div className="title-section">{data.taskName}</div>
@@ -282,11 +282,11 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div>{data.taskName}</div>
@@ -305,11 +305,11 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div>{data.taskName}</div>
@@ -328,8 +328,8 @@ function Task() {
               {data.description}
             </div>
             <div className="flex-between">
-              <DeleteForeverIcon />
-              <EditNoteIcon />
+              <DeleteForeverIcon className="pointer-cursor" />
+              <EditNoteIcon className="pointer-cursor" />
             </div>
           </div>
         </div>
@@ -337,10 +337,10 @@ function Task() {
       <div className="outer-task-container section-finished">
         <div className="task-devision-section">
           <span className="task-devision-title">Finished</span>
-          <AddIcon className="add-icon" />
+          <AddIcon className="add-icon pointer-cursor" />
         </div>
         <div className="task-section ">
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div className="title-section">{data.taskName}</div>
@@ -363,7 +363,7 @@ function Task() {
               <EditNoteIcon />
             </div>
           </div>
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div>{data.taskName}</div>
@@ -386,7 +386,7 @@ function Task() {
               <EditNoteIcon />
             </div>
           </div>
-          <div className="task-list-section flex-col-between">
+          <div className="task-list-section flex-col-between" key={data.id}>
             <div className="header-task-section">
               <div className="flex-between">
                 <div>{data.taskName}</div>
