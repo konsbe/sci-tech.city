@@ -107,10 +107,15 @@
   margin: 0px 0px 10px 0px;
   /* background-color: antiquewhite; */
 }
+
+.active-card {
+  background-color: rgba(180, 14, 185, 0.8);
+
+}
 .task-list-section {
   width: 98%;
   min-height: 140px;
-  background-color: #c27abe;
+  /* background-color: #c27abe; */
   padding: 0.5rem;
   border-radius: 5px;
   margin-bottom: 1rem;

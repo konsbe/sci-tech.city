@@ -1,6 +1,6 @@
 "use client";
 import React, { ChangeEvent, useContext, useState } from "react";
-import { INIT_PROJECT_DATA, mockData, ProjectType } from "./types";
+import { INIT_PROJECT_DATA, ProjectType } from "./types";
 import CircleIcon from "@mui/icons-material/Circle";
 import AddIcon from "@mui/icons-material/Add";
 import EditNoteIcon from "@mui/icons-material/EditNote";
@@ -10,8 +10,9 @@ import Modal from "@/src/components/Modal";
 import { SelectChangeEvent, TextField } from "@mui/material";
 import moment from "moment";
 import Link from "next/link";
+import { createProject, deleteProject, updateProject } from "@/src/app/actions";
 
-function ProjectManager() {
+function ProjectManager({ projects }) {
   const [projectData, setProjectData] = useState(INIT_PROJECT_DATA);
   const { openModal, closeModal } = useContext(ModalContext);
 
@@ -31,11 +32,22 @@ function ProjectManager() {
     });
   };
 
-  const onSubmitProjectData = () => {
-    console.log("projectData: ", projectData);
+  const onSubmitProjectData = async () => {
+    const create = await createProject({
+      ...projectData,
+      id: (projects.length + 1).toString(),
+    });
+    console.log("create: ", create);
   };
-  const onSubmitEditProjectData = () => {
-    console.log("projectData: ", projectData);
+  const onSubmitEditProjectData = async () => {
+    const update = await updateProject({ ...projectData });
+    console.log("update: ", update);
+  };
+  const onSubmitDeleteProjectData = async (projectId) => {
+    console.log("projectId: ", projectId);
+    
+    const deletePr = await deleteProject(projectId);
+    console.log("delete: ", deletePr);
   };
 
   const onOpenModal = (project: ProjectType | null) => {
@@ -72,6 +84,7 @@ function ProjectManager() {
                 onChange={(e) => handleChange(e)}>
                 <option value="none">⚪ None</option>
                 <option value="to_do">🔵 To do</option>
+                <option value="yellow"> Yellow</option>
                 <option value="in_progress">🟣 In progress</option>
                 <option value="finished">🟢 Finished</option>
                 <option value="blocked"> 🔴 Error</option>
@@ -104,7 +117,7 @@ function ProjectManager() {
             <button className="btn-cancel" onClick={closeModal}>
               Cancel
             </button>
-            <button onClick={onSubmitProjectData} className="btn-add">
+            <button onClick={projectData.id ? onSubmitEditProjectData : onSubmitProjectData} className="btn-add">
               Add
             </button>
           </div>
@@ -117,7 +130,7 @@ function ProjectManager() {
           onClick={() => onOpenModal(null)}>
           <AddIcon className="add-icon" fontSize="large" />
         </div>
-        {mockData.map((project, index) => {
+        {projects.map((project: any, index: number) => {
           return (
             <div key={index} className="card flex-col-between">
               <div className="title-section">
@@ -143,7 +156,7 @@ function ProjectManager() {
                 <p className="description">{project.description}</p>
               </div>
               <div className="options">
-                <DeleteForeverIcon className="trash-icon pointer-cursor" />
+                <DeleteForeverIcon onClick={() => onSubmitDeleteProjectData(project.id)} className="trash-icon pointer-cursor" />
                 <Link href={`/task-manager/${project.id}`} className="linkText">
                   <button className="btn">Checkout Project</button>
                 </Link>

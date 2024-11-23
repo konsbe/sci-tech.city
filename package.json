@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -17,6 +17,7 @@
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.12.1",
+    "@prisma/client": "^5.22.0",
     "@stomp/stompjs": "^7.0.0",
     "@types/bcryptjs": "^2.4.4",
     "@types/node": "20.5.0",
@@ -38,5 +39,9 @@
     "sockjs-client": "^1.6.1",
     "stompjs": "^2.3.3",
     "typescript": "5.1.6"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2"
   }
 }

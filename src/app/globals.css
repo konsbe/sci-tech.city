@@ -252,3 +252,37 @@ span > .linkText {
 .trash-icon:hover {
   color: red;
 }
+
+.trash-icon:active {
+  color: rgb(112, 0, 0);
+}
+.active-icon:hover {
+  color: rgb(15, 219, 83);
+}
+
+.active-icon:active {
+  color: rgb(5, 136, 23);
+}
+
+
+.card-none {
+  background-color: rgba(255, 255, 255, 0.8); /* Light white */
+}
+.card-todo {
+  background-color: rgba(30, 144, 255, 0.8); /* Dodger Blue */
+}
+.card-in_progress {
+  background-color: rgba(138, 43, 226, 0.8); /* Blue Violet */
+}
+.card-finished {
+  background-color: rgba(34, 139, 34, 0.8); /* Forest Green */
+}
+.card-error {
+  background-color: rgba(220, 20, 60, 0.8); /* Crimson Red */
+}
+.card-test {
+  background-color: rgba(255, 223, 0, 0.8); /* Bright Yellow */
+}
+.card-blocked {
+  background-color: rgba(255, 140, 0, 0.8); /* Dark Orange */
+}

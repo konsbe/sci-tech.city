@@ -27,8 +27,8 @@ import moment from "moment";
 import Modal from "../Modal";
 import { ModalContext } from "@/src/providers/ModalProvider";
 
-function TaskManager() {
-  const [tasks, setTasks] = useState<Task[]>(mockDataTask);
+function TaskManager({tasksData}) {
+  const [tasks, setTasks] = useState<Task[]>(tasksData);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [taskData, setTaskData] = useState<Task>(INIT_TASK_DATA);
   const { openModal, closeModal } = useContext(ModalContext);
@@ -113,7 +113,6 @@ function TaskManager() {
   const onSubmitTaskData = () => {
     console.log("projectData: ", taskData);
   };
-  console.log("tasks.length: ", tasks.length)
 
   return (
     <>
@@ -134,7 +133,6 @@ function TaskManager() {
               "backlog",
               "todo",
               "inprogress",
-              "test",
               "finished",
             ] as ColumnType[]
           ).map((field) => (
@@ -175,7 +173,7 @@ function TaskManager() {
         </div>
         <DragOverlay>
           {activeTaskId && (
-            <div className="task-list-section flex-col-between overlay-item">
+            <div className="active-card task-list-section flex-col-between overlay-item">
               {tasks.find((task) => task.id === activeTaskId)?.taskName}
             </div>
           )}

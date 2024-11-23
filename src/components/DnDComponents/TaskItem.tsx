@@ -24,11 +24,11 @@ function TaskItem({
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 999 : "auto", // Bring dragged item to the front
-    backgroundColor: isDragging ? "#f0f8ff" : "", // Highlight dragged item
+    backgroundColor: isDragging ? "rgba(255, 255, 255, 0.4)" : "", // Highlight dragged item
   };
 
   return (
-    <div style={style} className="task-list-section flex-col-between">
+    <div style={style} className={`card-${task.status} task-list-section flex-col-between`}>
       <div
         {...attributes}
         {...listeners}
@@ -54,9 +54,9 @@ function TaskItem({
         {task.description}
       </div>
       <div className="flex-between">
-        <DeleteForeverIcon className="pointer-cursor" />
+        <DeleteForeverIcon className="trash-icon pointer-cursor" />
         <EditNoteIcon
-          className="pointer-cursor"
+          className="active-icon pointer-cursor"
           onClick={() => onOpenModal(task)}
         />
       </div>

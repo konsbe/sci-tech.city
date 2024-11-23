@@ -1,46 +1,41 @@
 import moment from "moment";
 
-export type ColumnType =
-  | "backlog"
-  | "todo"
-  | "inprogress"
-  | "test"
-  | "finished";
+export type ColumnType = "backlog" | "todo" | "inprogress" | "finished";
 
-  export type StatusType =
+export type StatusType =
   | "none"
   | "todo"
   | "in_progress"
   | "finished"
   | "error"
-  | "blocked"
+  | "blocked";
 
-export type TaskType = {
-  id: string;
-  taskName: string;
-  starting_date: number;
-  ending_date: number;
-  status: string;
-  description: string;
-};
-
+// Type for Project
 export type ProjectType = {
   id: string;
   projectName: string;
-  date: number;
-  status: string;
+  date: number; // Use number for large numbers like timestamps
+  status: string; // Could be a string enum type if status values are predefined
   description: string;
-  tasks: TaskType[];
+  userEmail: string;
+  tasks: Task[] | [] | null; // Relationship with tasks
+  createdAt?: Date | number;
+  updatedAt?: Date | number;
 };
 
+// Type for Task
 export type Task = {
   id: string;
-  field: ColumnType;
+  field: ColumnType; // Enum reference
   taskName: string;
-  starting_date: number;
-  ending_date: number;
-  status: StatusType;
+  starting_date: number; // Use number for large numbers like timestamps
+  ending_date: number; // Same as above
+  status: StatusType; // Enum reference
   description: string;
+  projectId: string;
+  userEmail: string;
+  createdAt?: Date | number;
+  updatedAt?: Date | number;
 };
 
 export const INIT_TASK_DATA: Task = {
@@ -51,6 +46,8 @@ export const INIT_TASK_DATA: Task = {
   ending_date: moment().toDate().valueOf(), // +1 day
   status: "todo",
   description: "This is a sample task description.",
+  projectId: "",
+  userEmail: "",
 };
 
 export const INIT_PROJECT_DATA: ProjectType = {
@@ -59,52 +56,14 @@ export const INIT_PROJECT_DATA: ProjectType = {
   date: moment().utc().valueOf(),
   status: "none",
   description: "",
-  tasks: [], // Empty array, but we'll explicitly type it as TaskType[]
+  tasks: [],
+  userEmail: "",
 };
 
 export enum ENUMMODALTYPE {
   NEW,
   EDIT,
 }
-
-export const mockDataTask: Task[] = [
-  {
-    id: "1",
-    field: "backlog",
-    taskName: "Backlog Task 1",
-    starting_date: 1732143600000,
-    ending_date: 1732143600000,
-    status: "todo",
-    description: "Task description",
-  },
-  {
-    id: "2",
-    field: "backlog",
-    taskName: "Backlog Task 2",
-    starting_date: 1732143600000,
-    ending_date: 1732143600000,
-    status: "todo",
-    description: "Task description",
-  },
-  {
-    id: "3",
-    field: "todo",
-    taskName: "To Do Task 1",
-    starting_date: 1732143600000,
-    ending_date: 1732143600000,
-    status: "todo",
-    description: "Task description",
-  },
-  {
-    id: "4",
-    field: "finished",
-    taskName: "To Do Task 1",
-    starting_date: 1732143600000,
-    ending_date: 1732143600000,
-    status: "todo",
-    description: "Task description",
-  },
-];
 
 export const headerTitleMapper = (header: string) => {
   return header === "backlog"
@@ -118,6 +77,53 @@ export const headerTitleMapper = (header: string) => {
     : "Finished";
 };
 
+export const mockDataTask: Task[] = [
+  {
+    id: "1",
+    field: "backlog",
+    taskName: "Backlog Task 1",
+    starting_date: 1732143600000,
+    ending_date: 1732143600000,
+    status: "todo",
+    description: "Task description",
+    projectId: "",
+    userEmail: "",
+  },
+  {
+    id: "2",
+    field: "backlog",
+    taskName: "Backlog Task 2",
+    starting_date: 1732143600000,
+    ending_date: 1732143600000,
+    status: "in_progress",
+    description: "Task description",
+    projectId: "",
+    userEmail: "",
+  },
+  {
+    id: "3",
+    field: "todo",
+    taskName: "To Do Task 1",
+    starting_date: 1732143600000,
+    ending_date: 1732143600000,
+    status: "blocked",
+    description: "Task description",
+    projectId: "",
+    userEmail: "",
+  },
+  {
+    id: "4",
+    field: "finished",
+    taskName: "To Do Task 1",
+    starting_date: 1732143600000,
+    ending_date: 1732143600000,
+    status: "error",
+    description: "Task description",
+    projectId: "",
+    userEmail: "",
+  },
+];
+
 export const mockData: ProjectType[] = [
   {
     id: "asdw123-213",
@@ -126,16 +132,8 @@ export const mockData: ProjectType[] = [
     status: "in_progress",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sagittis viverra turpis, non cursus ex accumsan at.",
-    tasks: [
-      {
-        id: "asdw123-213",
-        taskName: "Task name",
-        starting_date: 1732143600000,
-        ending_date: 1732143600000,
-        status: "todo",
-        description: "this is a task description",
-      },
-    ],
+    tasks: mockDataTask,
+    userEmail: "",
   },
   {
     id: "asdw123-213",
@@ -143,16 +141,8 @@ export const mockData: ProjectType[] = [
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
-    tasks: [
-      {
-        id: "asdw123-213",
-        taskName: "Task name",
-        starting_date: 1732143600000,
-        ending_date: 1732143600000,
-        status: "todo",
-        description: "this is a task description",
-      },
-    ],
+    tasks: mockDataTask,
+    userEmail: "",
   },
   {
     id: "asdw123-213",
@@ -160,16 +150,8 @@ export const mockData: ProjectType[] = [
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
-    tasks: [
-      {
-        id: "asdw123-213",
-        taskName: "Task name",
-        starting_date: 1732143600000,
-        ending_date: 1732143600000,
-        status: "todo",
-        description: "this is a task description",
-      },
-    ],
+    tasks: mockDataTask,
+    userEmail: "",
   },
   {
     id: "asdw123-213",
@@ -177,16 +159,8 @@ export const mockData: ProjectType[] = [
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
-    tasks: [
-      {
-        id: "asdw123-213",
-        taskName: "Task name",
-        starting_date: 1732143600000,
-        ending_date: 1732143600000,
-        status: "todo",
-        description: "this is a task description",
-      },
-    ],
+    tasks: mockDataTask,
+    userEmail: "",
   },
   {
     id: "asdw123-213",
@@ -194,16 +168,8 @@ export const mockData: ProjectType[] = [
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
-    tasks: [
-      {
-        id: "asdw123-213",
-        taskName: "Task name",
-        starting_date: 1732143600000,
-        ending_date: 1732143600000,
-        status: "todo",
-        description: "this is a task description",
-      },
-    ],
+    tasks: mockDataTask,
+    userEmail: "",
   },
   {
     id: "asdw123-213",
@@ -211,15 +177,7 @@ export const mockData: ProjectType[] = [
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
-    tasks: [
-      {
-        id: "asdw123-213",
-        taskName: "Task name",
-        starting_date: 1732143600000,
-        ending_date: 1732143600000,
-        status: "todo",
-        description: "this is a task description",
-      },
-    ],
+    tasks: mockDataTask,
+    userEmail: "",
   },
 ];
