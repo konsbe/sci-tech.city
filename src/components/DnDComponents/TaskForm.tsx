@@ -19,7 +19,8 @@ export default function TaskForm({
   onSubmitTaskData: (dt: Task) => void;
 }) {
   const { openModal, closeModal } = useContext(ModalContext);
-
+  console.log("moment: ", moment(Number(taskData.starting_date)).utc().format("YYYY-MM-DD"));
+  
   return (
     <div className="card flex-col-between">
       <div className="form-title-section">
@@ -57,7 +58,7 @@ export default function TaskForm({
             type="date"
             id="starting_date"
             name="starting_date"
-            value={moment(taskData.starting_date).utc().format("YYYY-MM-DD")}
+            value={moment(Number(taskData.starting_date)).utc().format("YYYY-MM-DD")}
             onChange={(e) => handleChange(e)}
           />
           <input
@@ -65,7 +66,7 @@ export default function TaskForm({
             type="date"
             id="ending_date"
             name="ending_date"
-            value={moment(taskData.ending_date).utc().format("YYYY-MM-DD")}
+            value={moment(Number(taskData.ending_date)).utc().format("YYYY-MM-DD")}
             onChange={(e) => handleChange(e)}
           />
         </div>

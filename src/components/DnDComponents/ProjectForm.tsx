@@ -8,6 +8,7 @@ const ProjectForm = ({
   handleChange,
   onSubmitTaskData,
   closeModal,
+  projectDataRouter,
 }: {
   projectData: ProjectType;
   handleChange: (
@@ -18,7 +19,9 @@ const ProjectForm = ({
   ) => void;
   onSubmitTaskData: (dt: ProjectType) => void;
   closeModal: () => void;
+  projectDataRouter?: boolean;
 }) => {
+  
   return (
     <div className="card flex-col-between">
       <div className="form-title-section">
@@ -44,8 +47,8 @@ const ProjectForm = ({
             <option value="to_do">🔵 To do</option>
             <option value="in_progress">🟣 In progress</option>
             <option value="finished">🟢 Finished</option>
-            <option value="blocked"> 🔴 Error</option>
-            <option value="blocked"> 🟡 Test</option>
+            <option value="error"> 🔴 Error</option>
+            <option value="test"> 🟡 Test</option>
             <option value="blocked"> 🟠 Blocked</option>
           </select>
         </div>
@@ -55,7 +58,7 @@ const ProjectForm = ({
             type="date"
             id="date"
             name="date"
-            value={moment(projectData.date).utc().format("YYYY-MM-DD")}
+            value={moment(Number(projectData.date)).utc().format("YYYY-MM-DD")}
             onChange={(e) => handleChange(e)}
           />
         </div>
@@ -70,6 +73,20 @@ const ProjectForm = ({
           onChange={(e) => handleChange(e)}
           value={projectData.description}></textarea>
       </div>
+      {projectDataRouter && (
+        <div className="form-description-section">
+          <span className="text-area-title">info:</span>
+          <textarea
+            className="task-form-big-element rounded-corners"
+            id="info"
+            name="info"
+            rows={20}
+            cols={40}
+            onChange={(e) => handleChange(e)}
+            value={projectData.info}></textarea>
+        </div>
+      )}
+
       <div className="options">
         <button className="btn-cancel" onClick={closeModal}>
           Cancel

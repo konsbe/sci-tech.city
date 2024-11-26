@@ -180,6 +180,24 @@ export const getProjectTasks = async (project_id: number): Promise<GetProjectsRe
 };
 
 // Fetch specific tasks for a specific project and user email
+export const getProject = async (project_id: number): Promise<GetTaskResponse> => {
+  
+  try {
+    const task = await prisma.project.findUnique({
+      where: {
+        id: project_id,
+        user_email: "mock@email.com", // Filter by userEmail
+      },
+    });
+    
+    // Serialize with BigInt handling
+    const serializedProjects = JSON.parse(JSON.stringify(task, bigIntReplacer));
+    return serializedProjects;
+  } catch (error) {
+    console.error("Error fetching project tasks:", error);
+    return { message: "Error fetching project tasks", code: 500 }; // Return an error response
+  }
+}
 export const getTask = async (task_id: number, project_id: number): Promise<GetTaskResponse> => {
   
   try {

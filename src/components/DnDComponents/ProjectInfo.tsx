@@ -1,34 +1,35 @@
 "use client";
 import React, { ChangeEvent, useContext, useState } from "react";
-import { statusTitleMapper, Task } from "./types";
+import { ProjectType, statusTitleMapper, Task } from "./types";
 import ReplyIcon from "@mui/icons-material/Reply";
 import moment from "moment";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
-import { deleteTask, updateTask } from "@/src/app/actions";
+import { deleteProject, updateProject } from "@/src/app/actions";
 import Modal from "../Modal";
 import TaskForm from "./TaskForm";
 import { SelectChangeEvent } from "@mui/material";
 import { ModalContext } from "@/src/providers/ModalProvider";
+import ProjectForm from "./ProjectForm";
 
-const TaskInfo = ({ tasksData }) => {
-  const [taskData, setTaskData] = useState(tasksData);
+const ProjectInfo = ({ projectData }) => {
+  const [projectDataState, setProjectDataState] = useState(projectData);
   const { openModal, closeModal } = useContext(ModalContext);
   const params = useParams();
   const router = useRouter();
-  const onSubmitEditProjectData = async (taskDTO: Task) => {
+
+  const onSubmitEditProjectData = async (projectDTO: ProjectType) => {
     try {
-      const update = await updateTask(taskDTO);
+      const update = await updateProject(projectDTO);
     } catch (error) {
       console.error("Error updating task:", error);
     }
   };
 
-  const onDeleteTaskData = async (taskId: number) => {
+  const onDeleteProjectData = async (taskId: number) => {
     try {
-      const deleteTaskData = await deleteTask(taskId, Number(params.projectId));
+      const deleteTaskData = await deleteProject(Number(params.projectId));
     } catch (error) {
       console.error("Error updating task:", error);
     }
@@ -41,18 +42,15 @@ const TaskInfo = ({ tasksData }) => {
       | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     let timestamp;
-    if (e.target.name === "starting_date" || e.target.name === "ending_date") {
+    if (e.target.name === "date") {
       timestamp = moment(e.target.value).utc().valueOf();
     }
-
-    setTaskData({
-      ...taskData,
-      [e.target.name]:
-        e.target.name === "starting_date" || e.target.name === "ending_date"
-          ? timestamp
-          : e.target.value,
+    setProjectDataState({
+      ...projectDataState,
+      [e.target.name]: e.target.name === "date" ? timestamp : e.target.value,
     });
   };
+
   //   const onOpenModal = (tsk: Task) => {
   //       // tsk is of type Task
   //       setTaskData(tsk);
@@ -62,45 +60,57 @@ const TaskInfo = ({ tasksData }) => {
   return (
     <>
       <Modal>
-        <TaskForm
-          taskData={taskData}
+        <ProjectForm
+          projectData={projectDataState}
           handleChange={handleChange}
           onSubmitTaskData={onSubmitEditProjectData}
+          projectDataRouter={true}
+          closeModal={closeModal}
         />
       </Modal>
 
       <div className="w-100 h-90 flex-center">
         <div
-          className={`card-${taskData.status} task-card-content flex-col-between`}>
+          className={`card-${projectDataState.status} task-card-content flex-col-between`}>
           <div className="task-card header-task-section pointer-cursor">
             <div className="flex-between">
-              <div>{taskData.task_name}</div>
-              <div>{statusTitleMapper(taskData.status)}</div>
+              <div>{projectDataState.project_name}</div>
+              <div>{statusTitleMapper(projectDataState.status)}</div>
             </div>
             <div className="blog-time flex-between">
               <span>
-                start:&nbsp;
-                {moment(Number(taskData.starting_date))
+                Date:&nbsp;
+                {moment(Number(projectDataState.date))
                   .utc()
                   .format("DD/MM/YYYY")}
               </span>
               <span>
-                ends:&nbsp;
-                {moment(Number(taskData.ending_date))
-                  .utc()
-                  .format("DD/MM/YYYY")}
+                created at:&nbsp;
+                {moment(projectDataState.created_at).utc().format("DD/MM/YYYY")}
               </span>
             </div>
             <div className="flex-between">
               {/* <Link href={`task-manager/${params.projectId}`}> */}
+              <div>
                 <ReplyIcon
-                    onClick={() => router.push(`/task-manager/${params.projectId}`)}
+                  onClick={() => router.push("/task-manager/")}
                   className="trash-icon pointer-cursor"
                 />
+                <ReplyIcon
+                  onClick={() =>
+                    router.push(`/task-manager/${params.projectId}`)
+                  }
+                  className="rotating-icon pointer-cursor"
+                />
+              </div>
               {/* </Link> */}
               <div>
                 <DeleteForeverIcon
-                  onClick={() => onDeleteTaskData(taskData.id).then(() => {router.push(`/task-manager/${params.projectId}`)})}
+                  onClick={() =>
+                    onDeleteProjectData(projectDataState.id).then(() => {
+                      router.push("/task-manager/");
+                    })
+                  }
                   className="trash-icon pointer-cursor"
                 />
                 <EditNoteIcon
@@ -111,14 +121,14 @@ const TaskInfo = ({ tasksData }) => {
             </div>
           </div>
           <div className="description-taskData-section flex-center-start pointer-cursor">
-            {taskData.description}
+            {projectDataState.description}
           </div>
           <hr />
-          <div className="taskData-info ">{taskData.info}</div>
+          <div className="taskData-info ">{projectDataState.info}</div>
         </div>
       </div>
     </>
   );
 };
 
-export default TaskInfo;
+export default ProjectInfo;

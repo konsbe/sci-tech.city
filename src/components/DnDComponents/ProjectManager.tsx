@@ -76,7 +76,9 @@ function ProjectManager({ projects }) {
         {projects &&
           projects.map((project: any, index: number) => {
             return (
-              <div key={index} className="card flex-col-between">
+              <div
+                key={index}
+                className={`card card-${project.status}  flex-col-between`}>
                 <ProjectItem
                   project={project}
                   onDeleteProjectData={onSubmitDeleteProjectData}

@@ -54,7 +54,7 @@ tasks-container > p {
 
 .card {
   width: 25rem;
-  height: auto;
+  height: 278px;
   background: #fff;
   border-radius: 1.5rem;
   padding: 1.5rem;
@@ -200,4 +200,13 @@ select {
 option[data-icon]:before {
   content: attr(data-icon);
   margin-right: 8px;
+}
+
+.rotating-icon {
+  transform: rotateY(180deg);
+  transform-origin: center;
+}
+.modal-content > .card {
+  height: auto;
+
 }
