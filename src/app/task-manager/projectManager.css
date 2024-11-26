@@ -54,7 +54,7 @@ tasks-container > p {
 
 .card {
   width: 25rem;
-  height: 327px;
+  height: auto;
   background: #fff;
   border-radius: 1.5rem;
   padding: 1.5rem;

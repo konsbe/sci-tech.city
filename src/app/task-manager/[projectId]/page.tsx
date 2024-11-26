@@ -1,21 +1,22 @@
 import TaskManager from "@/src/components/DnDComponents/TaskManager";
+import "../projectManager.css";
 import "./taskManager.css";
 import { getProjectTasks } from "../../actions";
 
 
 interface TaskManagerRouterProps {
-  params: { taskId: string };
+  params: { projectId: string };
 }
 
 async function TaskManagerRouter({ params }: TaskManagerRouterProps) {
-  const { taskId } = params; // Get the 'id' from the URL
-  const tasks = await getProjectTasks(taskId);
+  const { projectId } = params; // Get the 'id' from the URL
+  const tasks = await getProjectTasks(Number(projectId));
   
   return <TaskManager tasksData={tasks}/>;
 }
-export async function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: TaskManagerRouterProps) {
   return {
-    title: `Task Manager - ${params.id}`,
+    title: `Sci.Task Manager - ${params.projectId}`,
   };
 }
 export default TaskManagerRouter;

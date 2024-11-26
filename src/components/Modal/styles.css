@@ -17,7 +17,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   border-radius: 1.5rem;
-  z-index: 101;
+  z-index: 1000;
 }
 
 .modal-content {

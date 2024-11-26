@@ -71,6 +71,7 @@ export default function TaskForm({
         </div>
       </div>
       <div className="form-description-section">
+        <span className="text-area-title">description:</span>
         <textarea
           className="task-form-big-element rounded-corners"
           id="description"
@@ -79,6 +80,17 @@ export default function TaskForm({
           cols={40}
           onChange={(e) => handleChange(e)}
           value={taskData.description}></textarea>
+      </div>
+      <div className="form-description-section">
+        <span className="text-area-title">info:</span>
+        <textarea
+          className="task-form-big-element rounded-corners"
+          id="info"
+          name="info"
+          rows={20}
+          cols={40}
+          onChange={(e) => handleChange(e)}
+          value={taskData.info}></textarea>
       </div>
       <div className="options">
         <button className="btn-cancel" onClick={closeModal}>

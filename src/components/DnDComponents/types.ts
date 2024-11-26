@@ -12,7 +12,7 @@ export type StatusType =
 
 // Type for Project
 export type ProjectType = {
-  id: string;
+  id: number;
   project_name: string;
   date: number; // Use number for large numbers like timestamps
   status: string; // Could be a string enum type if status values are predefined
@@ -54,7 +54,7 @@ export const INIT_TASK_DATA: Task = {
 };
 
 export const INIT_PROJECT_DATA: ProjectType = {
-  id: "",
+  id: -1,
   project_name: "",
   date: moment().utc().valueOf(),
   status: "none",
@@ -80,6 +80,21 @@ export const headerTitleMapper = (header: string) => {
     ? "Test"
     : "Finished";
 };
+export const statusTitleMapper = (value: string) => {
+  return value === "none"
+    ? "⚪ none"
+    : value === "to_do"
+    ? "🔵 to do"
+    : value === "in_progress"
+    ? "🟣 in progress"
+    : value === "finished"
+    ? "🟢 finished"
+    : value === "error"
+    ? "🔴 error"
+    : value === "test"
+    ? "🟡 test"
+    : "🟠 blocked";
+};
 
 export const mockDataTask: Task[] = [
   {
@@ -92,7 +107,7 @@ export const mockDataTask: Task[] = [
     description: "Task description",
     project_id: 1,
     userEmail: "",
-    info: ""
+    info: "",
   },
   {
     id: 2,
@@ -104,7 +119,7 @@ export const mockDataTask: Task[] = [
     description: "Task description",
     project_id: 1,
     userEmail: "",
-    info: ""
+    info: "",
   },
   {
     id: 3,
@@ -116,7 +131,7 @@ export const mockDataTask: Task[] = [
     description: "Task description",
     project_id: 1,
     userEmail: "",
-    info: ""
+    info: "",
   },
   {
     id: 4,
@@ -128,69 +143,70 @@ export const mockDataTask: Task[] = [
     description: "Task description",
     project_id: 1,
     userEmail: "",
-    info: ""
+    info: "",
   },
 ];
 
 export const mockData: ProjectType[] = [
   {
-    id: "asdw123-213",
+    id: 1,
     project_name: "Lynx",
     date: 1732143600000,
     status: "in_progress",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sagittis viverra turpis, non cursus ex accumsan at.",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sagittis viverra turpis, non cursus ex accumsan at.",
     tasks: mockDataTask,
     userEmail: "",
-    info: ""
+    info: "",
   },
   {
-    id: "asdw123-213",
+    id: 2,
     project_name: "DeepSea",
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
     tasks: mockDataTask,
     userEmail: "",
-    info: ""
+    info: "",
   },
   {
-    id: "asdw123-213",
+    id: 3,
     project_name: "Blue Coast Water",
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
     tasks: mockDataTask,
     userEmail: "",
-    info: ""
+    info: "",
   },
   {
-    id: "asdw123-213",
+    id: 4,
     project_name: "Blue Coast Water",
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
     tasks: mockDataTask,
     userEmail: "",
-    info: ""
+    info: "",
   },
   {
-    id: "asdw123-213",
+    id: 5,
     project_name: "Blue Coast Water",
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
     tasks: mockDataTask,
     userEmail: "",
-    info: ""
+    info: "",
   },
   {
-    id: "asdw123-213",
+    id: 6,
     project_name: "Blue Coast Water",
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
     tasks: mockDataTask,
     userEmail: "",
-    info: ""
+    info: "",
   },
 ];

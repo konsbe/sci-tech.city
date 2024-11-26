@@ -1,17 +1,15 @@
 "use client";
 import React, { ChangeEvent, useContext, useState } from "react";
 import { INIT_PROJECT_DATA, ProjectType } from "./types";
-import CircleIcon from "@mui/icons-material/Circle";
 import AddIcon from "@mui/icons-material/Add";
-import EditNoteIcon from "@mui/icons-material/EditNote";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { ModalContext } from "@/src/providers/ModalProvider";
 import Modal from "@/src/components/Modal";
-import { SelectChangeEvent, TextField } from "@mui/material";
+import { SelectChangeEvent } from "@mui/material";
 import moment from "moment";
 import { createProject, deleteProject, updateProject } from "@/src/app/actions";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import ProjectItem from "./ProjectItem";
+import ProjectForm from "./ProjectForm";
 
 function ProjectManager({ projects }) {
   const [projectData, setProjectData] = useState(INIT_PROJECT_DATA);
@@ -39,13 +37,12 @@ function ProjectManager({ projects }) {
       ...projectData,
       id: (projects.length + 1).toString(),
     });
-    console.log("create: ", create);
   };
 
   const onSubmitEditProjectData = async () => {
     const update = await updateProject({ ...projectData });
   };
-  const onSubmitDeleteProjectData = async (project_id: string) => {
+  const onSubmitDeleteProjectData = async (project_id: number) => {
     const deletePr = await deleteProject(project_id);
   };
 
@@ -61,71 +58,15 @@ function ProjectManager({ projects }) {
   return (
     <>
       <Modal modalContainer="task-manager">
-        <div className="card flex-col-between">
-          <div className="form-title-section">
-            <TextField
-              id="standard-basic"
-              label="Project Title"
-              variant="standard"
-              name="project_name"
-              value={projectData.project_name}
-              onChange={(e) => handleChange(e)}
-              className="blog-title"
-              sx={{ width: 200 }}
-            />
-
-            <div className="form-status-section">
-              <select
-                className="rounded-corners"
-                name="status"
-                id="lang"
-                value={projectData.status}
-                onChange={(e) => handleChange(e)}>
-                <option value="none">⚪ None</option>
-                <option value="to_do">🔵 To do</option>
-                <option value="in_progress">🟣 In progress</option>
-                <option value="finished">🟢 Finished</option>
-                <option value="blocked"> 🔴 Error</option>
-                <option value="blocked"> 🟡 Test</option>
-                <option value="blocked"> 🟠 Blocked</option>
-              </select>
-            </div>
-            <div className="form-calendar-section">
-              <input
-                className="form-datepicker rounded-corners"
-                type="date"
-                id="date"
-                name="date"
-                value={moment(projectData.date).utc().format("YYYY-MM-DD")}
-                onChange={(e) => handleChange(e)}
-              />
-            </div>
-          </div>
-          <div className="form-description-section">
-            <textarea
-              className="rounded-corners"
-              id="description"
-              name="description"
-              rows={4}
-              cols={40}
-              onChange={(e) => handleChange(e)}
-              value={projectData.description}></textarea>
-          </div>
-          <div className="options">
-            <button className="btn-cancel" onClick={closeModal}>
-              Cancel
-            </button>
-            <button
-              onClick={
-                projectData.id ? onSubmitEditProjectData : onSubmitProjectData
-              }
-              className="btn-add">
-              Add
-            </button>
-          </div>
-        </div>
+        <ProjectForm
+          projectData={projectData}
+          handleChange={handleChange}
+          onSubmitTaskData={
+            projectData.id > 0 ? onSubmitEditProjectData : onSubmitProjectData
+          }
+          closeModal={closeModal}
+        />
       </Modal>
-
       <div className="tasks-container">
         <div
           className="card add-card flex-center pointer-cursor"
@@ -136,43 +77,11 @@ function ProjectManager({ projects }) {
           projects.map((project: any, index: number) => {
             return (
               <div key={index} className="card flex-col-between">
-                <div className="title-section">
-                  <div className="blog-title flex-between">
-                    {project.project_name}
-                    <EditNoteIcon
-                      className="pointer-cursor"
-                      onClick={() => onOpenModal(project)}
-                    />
-                  </div>
-                  <div className="status-section flex-center-start">
-                    <CircleIcon color="primary" fontSize="small" />
-                    <span className="blog-status">{project.status}</span>
-                  </div>
-                  <span className="blog-time">
-                    {moment(Number(project.date))
-                      .utc()
-                      .format("dddd MMM D, YYYY")}
-                  </span>
-                  <span className="blog-status">
-                    {project.tasks.length} tasks
-                  </span>
-                </div>
-                <div className="description-section">
-                  <p className="description">{project.description}</p>
-                </div>
-                <div className="options">
-                  <DeleteForeverIcon
-                    onClick={() =>
-                      onSubmitDeleteProjectData(project.id.toString())
-                    }
-                    className="trash-icon pointer-cursor"
-                  />
-                  <Link
-                    href={`/task-manager/${project.id}`}
-                    className="linkText">
-                    <button className="btn">Checkout Project</button>
-                  </Link>
-                </div>
+                <ProjectItem
+                  project={project}
+                  onDeleteProjectData={onSubmitDeleteProjectData}
+                  onOpenModal={onOpenModal}
+                />
               </div>
             );
           })}
