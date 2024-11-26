@@ -13,10 +13,11 @@ export type StatusType =
 // Type for Project
 export type ProjectType = {
   id: string;
-  projectName: string;
+  project_name: string;
   date: number; // Use number for large numbers like timestamps
   status: string; // Could be a string enum type if status values are predefined
   description: string;
+  info: string;
   userEmail: string;
   tasks: Task[] | [] | null; // Relationship with tasks
   createdAt?: Date | number;
@@ -25,37 +26,40 @@ export type ProjectType = {
 
 // Type for Task
 export type Task = {
-  id: string;
+  id: number;
   field: ColumnType; // Enum reference
-  taskName: string;
+  task_name: string;
   starting_date: number; // Use number for large numbers like timestamps
   ending_date: number; // Same as above
   status: StatusType; // Enum reference
   description: string;
-  projectId: string;
+  info: string;
+  project_id: number;
   userEmail: string;
   createdAt?: Date | number;
   updatedAt?: Date | number;
 };
 
 export const INIT_TASK_DATA: Task = {
-  id: "none",
+  id: -1,
   field: "backlog", // Use a value from ColumnType
-  taskName: "Sample Task",
+  task_name: "Sample Task",
   starting_date: moment().toDate().valueOf(),
   ending_date: moment().toDate().valueOf(), // +1 day
-  status: "todo",
+  status: "none",
   description: "This is a sample task description.",
-  projectId: "",
+  info: "This is a sample task description.",
+  project_id: -1,
   userEmail: "",
 };
 
 export const INIT_PROJECT_DATA: ProjectType = {
   id: "",
-  projectName: "",
+  project_name: "",
   date: moment().utc().valueOf(),
   status: "none",
   description: "",
+  info: "",
   tasks: [],
   userEmail: "",
 };
@@ -79,105 +83,114 @@ export const headerTitleMapper = (header: string) => {
 
 export const mockDataTask: Task[] = [
   {
-    id: "1",
+    id: 1,
     field: "backlog",
-    taskName: "Backlog Task 1",
+    task_name: "Backlog Task 1",
     starting_date: 1732143600000,
     ending_date: 1732143600000,
     status: "todo",
     description: "Task description",
-    projectId: "",
+    project_id: 1,
     userEmail: "",
+    info: ""
   },
   {
-    id: "2",
+    id: 2,
     field: "backlog",
-    taskName: "Backlog Task 2",
+    task_name: "Backlog Task 2",
     starting_date: 1732143600000,
     ending_date: 1732143600000,
     status: "in_progress",
     description: "Task description",
-    projectId: "",
+    project_id: 1,
     userEmail: "",
+    info: ""
   },
   {
-    id: "3",
+    id: 3,
     field: "todo",
-    taskName: "To Do Task 1",
+    task_name: "To Do Task 1",
     starting_date: 1732143600000,
     ending_date: 1732143600000,
     status: "blocked",
     description: "Task description",
-    projectId: "",
+    project_id: 1,
     userEmail: "",
+    info: ""
   },
   {
-    id: "4",
+    id: 4,
     field: "finished",
-    taskName: "To Do Task 1",
+    task_name: "To Do Task 1",
     starting_date: 1732143600000,
     ending_date: 1732143600000,
     status: "error",
     description: "Task description",
-    projectId: "",
+    project_id: 1,
     userEmail: "",
+    info: ""
   },
 ];
 
 export const mockData: ProjectType[] = [
   {
     id: "asdw123-213",
-    projectName: "Lynx",
+    project_name: "Lynx",
     date: 1732143600000,
     status: "in_progress",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sagittis viverra turpis, non cursus ex accumsan at.",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sagittis viverra turpis, non cursus ex accumsan at.",
     tasks: mockDataTask,
     userEmail: "",
+    info: ""
   },
   {
     id: "asdw123-213",
-    projectName: "DeepSea",
+    project_name: "DeepSea",
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
     tasks: mockDataTask,
     userEmail: "",
+    info: ""
   },
   {
     id: "asdw123-213",
-    projectName: "Blue Coast Water",
+    project_name: "Blue Coast Water",
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
     tasks: mockDataTask,
     userEmail: "",
+    info: ""
   },
   {
     id: "asdw123-213",
-    projectName: "Blue Coast Water",
+    project_name: "Blue Coast Water",
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
     tasks: mockDataTask,
     userEmail: "",
+    info: ""
   },
   {
     id: "asdw123-213",
-    projectName: "Blue Coast Water",
+    project_name: "Blue Coast Water",
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
     tasks: mockDataTask,
     userEmail: "",
+    info: ""
   },
   {
     id: "asdw123-213",
-    projectName: "Blue Coast Water",
+    project_name: "Blue Coast Water",
     date: 1732143600000,
     status: "in_progress",
     description: "this is a project description",
     tasks: mockDataTask,
     userEmail: "",
+    info: ""
   },
 ];

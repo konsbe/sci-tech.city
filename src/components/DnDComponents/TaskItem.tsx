@@ -26,7 +26,8 @@ function TaskItem({
     zIndex: isDragging ? 999 : "auto", // Bring dragged item to the front
     backgroundColor: isDragging ? "rgba(255, 255, 255, 0.4)" : "", // Highlight dragged item
   };
-
+  console.log("task: ", task);
+  
   return (
     <div style={style} className={`card-${task.status} task-list-section flex-col-between`}>
       <div
@@ -35,15 +36,15 @@ function TaskItem({
         ref={setNodeRef}
         className="header-task-section pointer-cursor">
         <div className="flex-between">
-          <div>{task.taskName}</div>
+          <div>{task.task_name}</div>
           <div>{task.status}</div>
         </div>
         <div className="blog-time flex-between">
           <span>
-            start: {moment(task.starting_date).utc().format("DD/MM/YYYY")}
+            start: {moment(Number(task.starting_date)).utc().format("DD/MM/YYYY")}
           </span>
           <span>
-            ends: {moment(task.ending_date).utc().format("DD/MM/YYYY")}
+            ends: {moment(Number(task.ending_date)).utc().format("DD/MM/YYYY")}
           </span>
         </div>
       </div>

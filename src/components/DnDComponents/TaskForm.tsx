@@ -16,7 +16,7 @@ export default function TaskForm({
       | SelectChangeEvent
       | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
-  onSubmitTaskData: () => void;
+  onSubmitTaskData: (dt: Task) => void;
 }) {
   const { openModal, closeModal } = useContext(ModalContext);
 
@@ -27,8 +27,8 @@ export default function TaskForm({
           id="standard-basic"
           label="Project Title"
           variant="standard"
-          name="taskName"
-          value={taskData.taskName}
+          name="task_name"
+          value={taskData.task_name}
           onChange={(e) => handleChange(e)}
           className="blog-title task-form-small-element"
           sx={{ width: 200 }}
@@ -45,8 +45,8 @@ export default function TaskForm({
                 <option value="to_do">🔵 To do</option>
                 <option value="in_progress">🟣 In progress</option>
                 <option value="finished">🟢 Finished</option>
-                <option value="blocked"> 🔴 Error</option>
-                <option value="blocked"> 🟡 Test</option>
+                <option value="error"> 🔴 Error</option>
+                <option value="test"> 🟡 Test</option>
                 <option value="blocked"> 🟠 Blocked</option>
             </select>
           </div>
@@ -84,8 +84,8 @@ export default function TaskForm({
         <button className="btn-cancel" onClick={closeModal}>
           Cancel
         </button>
-        <button onClick={onSubmitTaskData} className="btn-add">
-          Add
+        <button onClick={() => onSubmitTaskData(taskData)} className="btn-add">
+          {taskData.id > 0 ? 'Edit' : 'Add'}
         </button>
       </div>
     </div>

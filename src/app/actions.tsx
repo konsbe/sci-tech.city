@@ -132,7 +132,10 @@ type ErrorResponse = {
 type GetProjectsResponse = GetProjectsSuccess | ErrorResponse;
 
 // Type for the response of the `getProjectTasks` function
-type GetProjectTasksResponse = GetProjectTasksSuccess | ErrorResponse;
+// Custom function to handle BigInt serialization
+function bigIntReplacer(key: string, value: any) {
+  return typeof value === "bigint" ? value.toString() : value;
+}
 
 // Fetch all projects
 export const getProjects = async (): Promise<GetProjectsResponse> => {
@@ -142,11 +145,14 @@ export const getProjects = async (): Promise<GetProjectsResponse> => {
         tasks: true, // Include associated tasks for each project
       },
       where: {
-        userEmail: "mock@email.com", // Filter by userEmail
+        user_email: "mock@email.com", // Match the correct database column
       },
     });
+    console.log("mock: ", projects);
 
-    return projects;
+    // Serialize with BigInt handling
+    const serializedProjects = JSON.parse(JSON.stringify(projects, bigIntReplacer));
+    return serializedProjects;
   } catch (error) {
     console.error("Error fetching projects:", error);
     return { message: "Error fetching projects", code: 500 }; // Return an error response
@@ -154,16 +160,18 @@ export const getProjects = async (): Promise<GetProjectsResponse> => {
 };
 
 // Fetch all tasks for a specific project and user email
-export const getProjectTasks = async (projectId: string): Promise<GetProjectTasksResponse> => {
+export const getProjectTasks = async (project_id: string): Promise<GetProjectTasksResponse> => {
   try {
     const tasks = await prisma.task.findMany({
       where: {
-        projectId: projectId,
-        userEmail: "mock@email.com", // Filter by userEmail
+        project_id: parseInt(project_id),
+        user_email: "mock@email.com", // Filter by userEmail
       },
     });
 
-    return tasks;
+    // Serialize with BigInt handling
+    const serializedProjects = JSON.parse(JSON.stringify(tasks, bigIntReplacer));
+    return serializedProjects;
   } catch (error) {
     console.error("Error fetching project tasks:", error);
     return { message: "Error fetching project tasks", code: 500 }; // Return an error response
@@ -174,16 +182,16 @@ export const getProjectTasks = async (projectId: string): Promise<GetProjectTask
 "npx prisma generate"
 
 // Create a new project with user email
-export const createProject = async (body: ProjectType & { userEmail: string }) => {
+export const createProject = async (body: ProjectType) => {
   try {
     const newProject = await prisma.project.create({
       data: {
-        id: body.id,
-        projectName: body.projectName,
+        id: parseInt(body.id),
+        project_name: body.project_name,
         date: body.date,
         status: body.status,
         description: body.description,
-        userEmail: "mock@email.com",
+        user_email: "mock@email.com",
         tasks: {},
       },
     });
@@ -194,23 +202,23 @@ export const createProject = async (body: ProjectType & { userEmail: string }) =
   }
 };
 
+export const createTask = async (body: Task) => {
 
-// Create a new task with user email
-export const createTask = async (body: Task & { userEmail: string }) => {
   try {
     const newTask = await prisma.task.create({
       data: {
         id: body.id,
-        taskName: body.taskName,
+        task_name: body.task_name,
         starting_date: body.starting_date,
         ending_date: body.ending_date,
         status: body.status,
         description: body.description,
         field: body.field,
-        projectId: body.id,
-        userEmail: "mock@email.com", // Include userEmail in the task
+        project_id: body.project_id, // You should use `project_id` instead of `body.id`
+        user_email: "mock@email.com", // Include userEmail in the task
       },
     });
+
     return newTask;
   } catch (error) {
     console.error("Error creating task:", error);
@@ -219,16 +227,16 @@ export const createTask = async (body: Task & { userEmail: string }) => {
 };
 
 // Update an existing project with user email
-export const updateProject = async (body: ProjectType & { userEmail: string }) => {
+export const updateProject = async (body: ProjectType) => {
   try {
     const updatedProject = await prisma.project.update({
-      where: { id: body.id },
+      where: { id: parseInt(body.id) },
       data: {
-        projectName: body.projectName,
+        project_name: body.project_name,
         date: body.date,
         status: body.status,
         description: body.description,
-        userEmail: "mock@email.com", // Update user email if necessary
+        user_email: "mock@email.com", // Update user email if necessary
       },
     });
     return updatedProject;
@@ -239,21 +247,30 @@ export const updateProject = async (body: ProjectType & { userEmail: string }) =
 };
 
 // Update an existing task with user email
-export const updateTask = async (body: Task & { userEmail: string }) => {
+export const updateTask = async (body: Task) => {
+  console.log("body: ", body);
+  
   try {
     const updatedTask = await prisma.task.update({
-      where: { id: body.id },
+      where: {
+        id: body.id,
+        project_id: body.project_id, // Ensure project_id is used here, not id
+        user_email: body.userEmail,  // Use user_email for the correct task update
+      },
       data: {
-        taskName: body.taskName,
+        task_name: body.task_name,
         starting_date: body.starting_date,
         ending_date: body.ending_date,
         status: body.status,
         description: body.description,
         field: body.field,
-        projectId: body.id,
-        userEmail: "mock@email.com", // Update user email if necessary
+        updated_at: new Date(), // Update timestamp manually
+        user_email: "mock@email.com"
       },
     });
+    
+    console.log("updatedTask: ", updatedTask);
+
     return updatedTask;
   } catch (error) {
     console.error("Error updating task:", error);
@@ -261,13 +278,13 @@ export const updateTask = async (body: Task & { userEmail: string }) => {
   }
 };
 
-// Delete a project with projectId and userEmail
-export const deleteProject = async (projectId: string) => {
+// Delete a project with project_id and userEmail
+export const deleteProject = async (project_id: string) => {
   try {
     const deletedProject = await prisma.project.deleteMany({
       where: {
-        id: projectId,
-        userEmail: "mock@email.com", // Ensure the user owns the project
+        id: parseInt(project_id),
+        user_email: "mock@email.com", // Ensure the user owns the project
       },
     });
     return deletedProject;
@@ -282,8 +299,8 @@ export const deleteTask = async (taskId: string, userEmail: string) => {
   try {
     const deletedTask = await prisma.task.deleteMany({
       where: {
-        id: taskId,
-        userEmail: "mock@email.com", // Ensure the user owns the task
+        id: parseInt(taskId),
+        user_email: "mock@email.com", // Ensure the user owns the task
       },
     });
     return deletedTask;

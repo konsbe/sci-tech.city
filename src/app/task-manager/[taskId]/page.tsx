@@ -10,7 +10,7 @@ interface TaskManagerRouterProps {
 async function TaskManagerRouter({ params }: TaskManagerRouterProps) {
   const { taskId } = params; // Get the 'id' from the URL
   const tasks = await getProjectTasks(taskId);
-
+  
   return <TaskManager tasksData={tasks}/>;
 }
 export async function generateMetadata({ params }: { params: { id: string } }) {

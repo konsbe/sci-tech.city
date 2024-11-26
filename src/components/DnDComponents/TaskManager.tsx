@@ -26,15 +26,19 @@ import { SelectChangeEvent } from "@mui/material";
 import moment from "moment";
 import Modal from "../Modal";
 import { ModalContext } from "@/src/providers/ModalProvider";
+import { createTask, updateTask } from "@/src/app/actions";
+import { useParams } from "next/navigation";
 
 function TaskManager({tasksData}) {
+
+  
   const [tasks, setTasks] = useState<Task[]>(tasksData);
-  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [activeTaskId, setActiveTaskId] = useState<number | null>(null);
   const [taskData, setTaskData] = useState<Task>(INIT_TASK_DATA);
   const { openModal, closeModal } = useContext(ModalContext);
-
-
-  const handleDragEnd = (event: DragEndEvent) => {
+  const params = useParams()
+  
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveTaskId(null); // Clear overlay
 
@@ -51,6 +55,7 @@ function TaskManager({tasksData}) {
           task.id === active.id ? { ...task, field: targetField } : task
         )
       );
+      await onSubmitEditProjectData({ ...activeTask, field: targetField });
       return;
     }
 
@@ -71,6 +76,10 @@ function TaskManager({tasksData}) {
 
       const updatedColumnTasks = arrayMove(columnTasks, oldIndex, newIndex);
       setTasks([...updatedColumnTasks, ...otherTasks]);
+
+      updatedColumnTasks.forEach( async (taskItem: Task) => {
+        taskItem && await onSubmitEditProjectData(taskItem);
+      })
     } else {
       // Move between columns
       setTasks((prev) =>
@@ -78,12 +87,15 @@ function TaskManager({tasksData}) {
           task.id === active.id ? { ...task, field: overTask.field } : task
         )
       );
+      await onSubmitEditProjectData({ ...activeTask, field: overTask.field });
+
     }
   };
+  
   const onOpenModal = (tsk: Task | ColumnType) => {
     if (typeof tsk === "string") {
       // tsk is of type ColumnType
-      setTaskData({ ...INIT_TASK_DATA, field: tsk, id: (tasks.length + 1).toString()  });
+      setTaskData({ ...INIT_TASK_DATA, field: tsk });
     } else {
       // tsk is of type Task
       setTaskData(tsk);
@@ -98,9 +110,10 @@ function TaskManager({tasksData}) {
       | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     let timestamp;
-    if (e.target.name === "date") {
+    if (e.target.name === "starting_date" || e.target.name === "ending_date") {
       timestamp = moment(e.target.value).utc().valueOf();
     }
+    
     setTaskData({
       ...taskData,
       [e.target.name]:
@@ -109,24 +122,36 @@ function TaskManager({tasksData}) {
           : e.target.value,
     });
   };
-
-  const onSubmitTaskData = () => {
-    console.log("projectData: ", taskData);
+  
+  const onSubmitTaskData = (taskDTO: Task) => {    
+    console.log("taskData: ", {...taskDTO, id: tasks.length + 1, project_id: Number(params.taskId)});
+    const create = createTask({...taskDTO, id: tasks.length + 1, project_id: Number(params.taskId)})
+    console.log("create: ", create);
+    
   };
 
+  const onSubmitEditProjectData = async (taskDTO: Task) => {
+    try {
+      const update = await updateTask(taskDTO);
+      console.log("update: ", update);
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+  
   return (
     <>
       <Modal styling={"this-is"}>
         <TaskForm
           taskData={taskData}
           handleChange={handleChange}
-          onSubmitTaskData={onSubmitTaskData}
+          onSubmitTaskData={taskData.id > 0 ? onSubmitEditProjectData : onSubmitTaskData}
         />
       </Modal>
       <DndContext
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
-        onDragStart={(event) => setActiveTaskId(event.active.id.toString())}>
+        onDragStart={(event) => setActiveTaskId(Number(event.active.id))}>
         <div className="task-dnd-space-container">
           {(
             [
@@ -174,7 +199,7 @@ function TaskManager({tasksData}) {
         <DragOverlay>
           {activeTaskId && (
             <div className="active-card task-list-section flex-col-between overlay-item">
-              {tasks.find((task) => task.id === activeTaskId)?.taskName}
+              {tasks.find((task) => task.id === activeTaskId)?.task_name}
             </div>
           )}
         </DragOverlay>

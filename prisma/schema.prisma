@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:password@localhost:5433/sci_tech_city"
+}
+
+model Project {
+  id           BigInt    @id
+  project_name String    @db.VarChar(255)
+  date         BigInt
+  status       String    @db.VarChar(50)
+  description  String?
+  info         String?
+  user_email   String    @db.VarChar(255)
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  updated_at   DateTime? @default(now()) @db.Timestamp(6)
+  tasks        Task[]
+
+  @@map("projects")
+}
+
+model Task {
+  id            BigInt    @id
+  project_id    BigInt
+  task_name     String    @db.VarChar(255)
+  starting_date BigInt
+  ending_date   BigInt
+  status        String    @db.VarChar(50)
+  description   String?
+  info          String?
+  field         String    @db.VarChar(50)
+  user_email    String    @db.VarChar(255)
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  updated_at    DateTime? @default(now()) @db.Timestamp(6)
+  projects      Project   @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("tasks")
+}
+
+enum ColumnType {
+  backlog
+  todo
+  inprogress
+  finished
+}
+
+enum StatusType {
+  none
+  todo
+  in_progress
+  finished
+  error
+  blocked
+}
