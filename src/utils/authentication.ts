@@ -1,4 +1,5 @@
 import { BaseClient, Issuer, custom, generators } from "openid-client";
+import { ErrorResponse } from "../app/actions";
 
 async function setupKeycloakClient() {
   const keycloakIssuer = await Issuer.discover("https://accounts.google.com");
@@ -26,4 +27,20 @@ async function setupKeycloakClient() {
 
 }
 
-setupKeycloakClient();
+
+
+export function isErrorResponse(object: unknown): object is ErrorResponse {
+  return (
+      typeof object === 'object' &&
+      object !== null &&
+      'message' in object &&
+      'code' in object &&
+      typeof (object as ErrorResponse).message === 'string' &&
+      typeof (object as ErrorResponse).code === 'number'
+  );
+}
+
+
+export const unauthorizedErrorCode = {message: 'Unauthorized', code: 401}
+
+// setupKeycloakClient();

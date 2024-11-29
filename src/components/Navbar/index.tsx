@@ -70,8 +70,7 @@ export const Navbar = () => {
           onClick={() =>
             !accessToken
               ? router.push("/login")
-              : logout().then(() => router.push("/login"))
-          }
+              : logout().then(() => router.push("/login", pathname ))}
           sx={{ my: 2, color: "white" }}
           className={styles.colorButtons}>
           {!accessToken ? loginButton[0].icon : logoutButton[0].icon}

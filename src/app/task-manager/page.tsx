@@ -1,12 +1,11 @@
 import ProjectManager from "@/src/components/DnDComponents/ProjectManager";
 import "./projectManager.css";
-import { getProjects } from "../actions";
-
+import { getProjects, GetProjectsResponse } from "../actions";
 
 async function TaskManagerRouter() {
+  const projects: GetProjectsResponse = await getProjects();
+  console.log("projects: ", projects);
   
-  const projects = await getProjects();
-
   return <ProjectManager projects={projects} />;
 }
 

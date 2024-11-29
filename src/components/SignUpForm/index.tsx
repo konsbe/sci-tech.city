@@ -12,6 +12,7 @@ import { hashCompareFunction, hashFunction } from "@/src/utils/bcrypt";
 import { createUser } from "@/src/app/actions";
 import { Base64, UserInfo } from "@/src/interfaces/user";
 import { convertBase64 } from "@/src/utils/image";
+import { useRouter } from "next/navigation";
 
 const initialState = {
   userName: "",
@@ -41,7 +42,7 @@ function SignUpForm() {
   const [formData, setFormData] = useState<UserInfo>(initialState);
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(true);
-  const [confirmPassBool, setConfirmPassBool] = useState(true);
+  const router = useRouter();
   const placeholder_styles = {
     width: "100%",
     marginBottom: 1,
@@ -59,9 +60,9 @@ function SignUpForm() {
   const handleSubmit = async (e: React.SyntheticEvent | React.FormEvent) => {
     e.preventDefault();
 
-    if (await hashCompareFunction(formData.confirmPassword, formData.password)) {
+    if (formData.confirmPassword === formData.password) {
       const sub = await createUser(formData);
-      return sub;
+      return sub.statusCodeValue === 201 ? router.push("/login"): alert('oops something went wrong');
     } else {
       alert("password is not the same");
     }
@@ -81,20 +82,22 @@ function SignUpForm() {
       let hashedConfirmPassword: string;
       if (e.target.name === "password") {
         setPassword(e.target.value);
-        hashedPassword = await hashFunction(e.target.value);
+        // setConfirmPassBool(formData.confirmPassword === formData.password)
+        // hashedPassword = await hashFunction(e.target.value);
         setFormData(() => {
           return {
             ...formData,
-            password: String(hashedPassword),
+            password: e.target.value,
           }
         });
       } else if (e.target.name === "confirmPassword") {
         setConfirmPassword(e.target.value);
-        hashedConfirmPassword = await hashFunction(e.target.value);
+        // setConfirmPassBool(formData.confirmPassword === formData.password)
+        // hashedConfirmPassword = await hashFunction(e.target.value);
         setFormData(() => {
           return {
             ...formData,
-            confirmPassword: String(hashedConfirmPassword),
+            confirmPassword: e.target.value,
           }
         });
       } else {
@@ -142,12 +145,6 @@ function SignUpForm() {
         setFormData({ ...formData, profilePicture: base64Image });
       };
     };
-
-    useEffect(() => {
-      hashCompareFunction(formData.confirmPassword, formData.password).then((res) => {
-        if (typeof res === 'boolean') setConfirmPassBool(res)
-      });
-    },[formData.confirmPassword, formData.password])
     
     useEffect(() => {
       fetchCharacters(page).then((result) => {
@@ -245,8 +242,8 @@ function SignUpForm() {
             sx={placeholder_styles}
             placeholder="confirm password"
             name="confirmPassword"
-            color={confirmPassBool ? "secondary" : "error"}
-            error={!confirmPassBool}
+            color={formData.confirmPassword === formData.password ? "secondary" : "error"}
+            error={!(formData.confirmPassword === formData.password)}
             onChange={handleChange}
           />
           <ButtonForm

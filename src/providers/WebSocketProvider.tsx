@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { getCookie } from "../app/actions";
+import Cookies from 'js-cookie';
 import { AuthContext } from "../providers/AuthProvider";
 import SockJS from "sockjs-client";
 import { CompatClient, Stomp } from "@stomp/stompjs";
@@ -9,7 +9,7 @@ import { EnumStatus, IMessage, TypeChats } from "../interfaces/chat";
 // Create a context for the modal
 const WebSocketContext = createContext<any>(null);
 let stompClient: CompatClient | null = null;
-const socketURL = "http://localhost:8081/ws";
+const socketURL = "http://localhost:8083/api/websocket/";
 
 const WebSocketProvider = ({ children }: any) => {
   const [cookie, setCookie] = useState<string | null>(null);
@@ -33,10 +33,12 @@ const WebSocketProvider = ({ children }: any) => {
     message: "",
     status: EnumStatus[EnumStatus.MESSAGE],
   });
-
+  
   const fetchCookie = async () => {
     try {
+      
       const result = await getCookie("access_token");
+      
       setCookie(result?.value ?? null);
     } catch (error) {
       return null;
@@ -282,9 +284,13 @@ const WebSocketProvider = ({ children }: any) => {
   };
 
   useEffect(() => {
+    
     fetchCookie();
-
+    
     if (typeof window !== "undefined") {
+      const myCookie = Cookies.get(); // Replace with your cookie name
+      console.log("cookies: ", myCookie);
+
       connect();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

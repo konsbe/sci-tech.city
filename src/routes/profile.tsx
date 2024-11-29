@@ -44,7 +44,7 @@ const SettingsFormComponent = ({ header = "Profile" }) => {
 
   const submitButton = async () => {
     
-    const response = await fetch("http://localhost:8082/update_profile_data", {
+    const response = await fetch("http://localhost:23/api/keycloak/api/keycloak/update_profile_data", {
       method: "POST",
       body: JSON.stringify({ ...userData }),
       headers: {

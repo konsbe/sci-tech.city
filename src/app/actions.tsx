@@ -4,6 +4,47 @@ import { cookies } from "next/headers";
 import { UserInfo } from "../interfaces/user";
 import { Task, ProjectType } from "../components/DnDComponents/types";
 
+import { PrismaClient } from '@prisma/client';
+import moment from "moment";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
+
+const prisma = new PrismaClient();
+
+
+
+
+
+// Type for the return value of `getProjects` and `getProjectTasks`
+type GetProjectsSuccess = ProjectType[];
+
+type GetTaskSuccess = Task;
+type GetProjectTasksSuccess = Task[];
+
+// Type for the error response
+export type ErrorResponse = {
+  message: string;
+  code: number;  // You can customize this to fit your error model (e.g., Prisma error codes)
+};
+
+
+
+
+// Type for the response of the `getProjects` function
+export type GetProjectsResponse = GetProjectsSuccess | ErrorResponse;
+// Type for the response of the `getProjectsTasks` function
+export type GetProjectsTasksResponse = GetProjectTasksSuccess | ErrorResponse;
+// Type for the response of the `getTasks` function
+export type GetTaskResponse = GetTaskSuccess | ErrorResponse;
+
+// Type for the response of the `getProjectTasks` function
+// Custom function to handle BigInt serialization
+function bigIntReplacer(key: string, value: any) {
+  return typeof value === "bigint" ? value.toString() : value;
+}
+
+const unauthorizedErrorCode = {message: 'Unauthorized', code: 401}
+
 export async function createCookie(data: any) {
   const cookiesList = cookies();
   const hasCookie = cookiesList.get("user");
@@ -16,7 +57,7 @@ export async function createCookie(data: any) {
   });
 }
 
-export async function getCookie(name: string) {
+function getCookie(name: string): RequestCookie | undefined {
   const cookiesList = cookies();
 
   const hasCookie = cookiesList.get(name);
@@ -25,6 +66,7 @@ export async function getCookie(name: string) {
 }
 
 export async function createUser(data: UserInfo) {
+  
   const reqBody = {
     user_id: Date.now(),
     username: data.userName,
@@ -35,7 +77,7 @@ export async function createUser(data: UserInfo) {
   };
 
   const response = await fetch(
-    `http://localhost:8082/keycloak-service/signup`,
+    `http://localhost:81/api/auth/signup`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -44,7 +86,8 @@ export async function createUser(data: UserInfo) {
   );
 
   const res: any = await response.json();
-
+  console.log("res: ", res);
+  
   return res;
 }
 export async function decodeToken(accessToken: string) {
@@ -56,19 +99,22 @@ export async function decodeToken(accessToken: string) {
 }
 
 export const login = async (data: { username: string; password: string }) => {
-  const response = await fetch("http://localhost:8082/api/auth/signin", {
+  const response = await fetch("http://127.0.1.1:81/api/auth/signin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 
   const res: any = await response.json();
+  console.log("res: ", res);
+  if (res.status) return unauthorizedErrorCode
   const resToken = res[0] ? res[0] : res;
+  
   const parts = resToken?.access_token?.split(".");
 
   if (!res || res.status > 400) return res;
   // const header = JSON.parse(atob(parts[0]));
-
+  
   const payload = JSON.parse(atob(parts[1]));
 
   await createCookie({
@@ -93,7 +139,7 @@ export const logout = async () => {
   if (!hasCookie) return;
 
   const response = await fetch(
-    "http://localhost:8082/keycloak-service/logout",
+    "http://localhost:81/api/auth/logout",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -103,56 +149,31 @@ export const logout = async () => {
 
   cookies().delete("access_token");
   cookies().delete("user");
+  cookies().delete("profile_data");
 
   return response;
 };
 
 
-import { PrismaClient } from '@prisma/client';
-import moment from "moment";
-
-const prisma = new PrismaClient();
-
-
-
-
-
-// Type for the return value of `getProjects` and `getProjectTasks`
-type GetProjectsSuccess = ProjectType[];
-
-type GetTaskSuccess = Task;
-type GetProjectTasksSuccess = Task[];
-
-// Type for the error response
-type ErrorResponse = {
-  message: string;
-  code: number;  // You can customize this to fit your error model (e.g., Prisma error codes)
-};
-
-// Type for the response of the `getProjects` function
-type GetProjectsResponse = GetProjectsSuccess | ErrorResponse;
-type GetTaskResponse = GetTaskSuccess | ErrorResponse;
-
-// Type for the response of the `getProjectTasks` function
-// Custom function to handle BigInt serialization
-function bigIntReplacer(key: string, value: any) {
-  return typeof value === "bigint" ? value.toString() : value;
-}
-
 // Fetch all projects
 export const getProjects = async (): Promise<GetProjectsResponse> => {
+  
+  // const hasUserCookie = cookiesList.get("user");
+  const hasUserCookie = getCookie("user");
+  // cookies().set('name', 'value', { expires: Date.now() - oneDay })
+  
   try {
     const projects = await prisma.project.findMany({
       include: {
         tasks: true, // Include associated tasks for each project
       },
       where: {
-        user_email: "mock@email.com", // Match the correct database column
+        user_email: hasUserCookie?.value, // Match the correct database column
       },
     });
 
     // Serialize with BigInt handling
-    const serializedProjects = JSON.parse(JSON.stringify(projects, bigIntReplacer));
+    const serializedProjects = hasUserCookie ? JSON.parse(JSON.stringify(projects, bigIntReplacer)) : JSON.parse(JSON.stringify(unauthorizedErrorCode));
     return serializedProjects;
   } catch (error) {
     console.error("Error fetching projects:", error);
@@ -162,11 +183,13 @@ export const getProjects = async (): Promise<GetProjectsResponse> => {
 
 // Fetch all tasks for a specific project and user email
 export const getProjectTasks = async (project_id: number): Promise<GetProjectsResponse> => {
+  const hasUserCookie = getCookie("user");
+
   try {
     const tasks = await prisma.task.findMany({
       where: {
         project_id: project_id,
-        user_email: "mock@email.com", // Filter by userEmail
+        user_email: hasUserCookie?.value, // Filter by userEmail
       },
     });
 
@@ -181,12 +204,13 @@ export const getProjectTasks = async (project_id: number): Promise<GetProjectsRe
 
 // Fetch specific tasks for a specific project and user email
 export const getProject = async (project_id: number): Promise<GetTaskResponse> => {
-  
+  const hasUserCookie = getCookie("user");
+
   try {
     const task = await prisma.project.findUnique({
       where: {
         id: project_id,
-        user_email: "mock@email.com", // Filter by userEmail
+        user_email: hasUserCookie?.value, // Filter by userEmail
       },
     });
     
@@ -199,13 +223,14 @@ export const getProject = async (project_id: number): Promise<GetTaskResponse> =
   }
 }
 export const getTask = async (task_id: number, project_id: number): Promise<GetTaskResponse> => {
-  
+  const hasUserCookie = getCookie("user");
+
   try {
     const task = await prisma.task.findUnique({
       where: {
         id: task_id,
         project_id: project_id,
-        user_email: "mock@email.com", // Filter by userEmail
+        user_email: hasUserCookie?.value, // Filter by userEmail
       },
     });
     
@@ -223,16 +248,19 @@ export const getTask = async (task_id: number, project_id: number): Promise<GetT
 
 // Create a new project with user email
 export const createProject = async (body: ProjectType) => {
+  const hasUserCookie = getCookie("user");
+
+
   try {
     const newProject = await prisma.project.create({
       data: {
         id: body.id,
         project_name: body.project_name,
-        date: body.date,
+        date: body.date ,
         status: body.status,
         description: body.description,
         info: body.info,
-        user_email: "mock@email.com",
+        user_email: hasUserCookie?.value || '',
         tasks: {},
       },
     });
@@ -244,6 +272,9 @@ export const createProject = async (body: ProjectType) => {
 };
 
 export const createTask = async (body: Task) => {
+  const cookiesList = cookies();
+  
+  const hasUserCookie = cookiesList.get("user");
 
   try {
     const newTask = await prisma.task.create({
@@ -257,7 +288,7 @@ export const createTask = async (body: Task) => {
         description: body.description,
         field: body.field,
         project_id: body.project_id, // You should use `project_id` instead of `body.id`
-        user_email: "mock@email.com", // Include userEmail in the task
+        user_email: hasUserCookie?.value || '', // Include userEmail in the task
       },
     });
 
@@ -270,6 +301,8 @@ export const createTask = async (body: Task) => {
 
 // Update an existing project with user email
 export const updateProject = async (body: ProjectType) => {
+  const hasUserCookie = getCookie("user");
+
   try {
     const updatedProject = await prisma.project.update({
       where: { id: body.id },
@@ -279,7 +312,7 @@ export const updateProject = async (body: ProjectType) => {
         status: body.status,
         description: body.description,
         info: body.info,
-        user_email: "mock@email.com", // Update user email if necessary
+        user_email: hasUserCookie?.value || '', // Update user email if necessary
       },
     });
     return updatedProject;
@@ -291,13 +324,14 @@ export const updateProject = async (body: ProjectType) => {
 
 // Update an existing task with user email
 export const updateTask = async (body: Task) => {
-  
+  const hasUserCookie = getCookie("user");
+
   try {
     const updatedTask = await prisma.task.update({
       where: {
         id: body.id,
         project_id: body.project_id, // Ensure project_id is used here, not id
-        user_email: body.userEmail,  // Use user_email for the correct task update
+        user_email: hasUserCookie?.value,  // Use user_email for the correct task update
       },
       data: {
         task_name: body.task_name,
@@ -308,7 +342,7 @@ export const updateTask = async (body: Task) => {
         info: body.info,
         field: body.field,
         updated_at: new Date(), // Update timestamp manually
-        user_email: "mock@email.com"
+        user_email: hasUserCookie?.value
       },
     });
     
@@ -321,12 +355,13 @@ export const updateTask = async (body: Task) => {
 
 // Delete a project with project_id and userEmail
 export const deleteProject = async (project_id: number) => {
-  
+  const hasUserCookie = getCookie("user");
+
   try {
     const deletedProject = await prisma.project.deleteMany({
       where: {
         id: project_id,
-        user_email: "mock@email.com", // Ensure the user owns the project
+        user_email: hasUserCookie?.value, // Ensure the user owns the project
       },
     });
     
@@ -339,12 +374,14 @@ export const deleteProject = async (project_id: number) => {
 
 // Delete a task with taskId and userEmail
 export const deleteTask = async (taskId: number, projectId: number) => {
+  const hasUserCookie = getCookie("user");
+
   try {
     const deletedTask = await prisma.task.deleteMany({
       where: {
         id: taskId,
         project_id: projectId,
-        user_email: "mock@email.com", // Ensure the user owns the task
+        user_email: hasUserCookie?.value, // Ensure the user owns the task
       },
     });
     return deletedTask;

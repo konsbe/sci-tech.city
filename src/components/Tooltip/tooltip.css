@@ -1,0 +1,25 @@
+.tooltip {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .tooltiptext {
+    position: fixed; /* Use fixed positioning for following the mouse */
+    background-color: rgba(0, 0, 0, 0.8); /* Dark background */
+    color: #fff; /* White text */
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    pointer-events: none; /* Prevent the tooltip from blocking mouse events */
+    opacity: 0; /* Hidden by default */
+    /* transform: translate(-50%, -50%); */
+    white-space: nowrap;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 9999;
+    font-family: cursive;
+  }
+  
+  .tooltip:hover .tooltiptext {
+    opacity: 1; /* Show the tooltip on hover */
+  }
+  

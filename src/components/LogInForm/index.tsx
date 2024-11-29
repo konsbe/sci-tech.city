@@ -25,19 +25,21 @@ function LoginForm(): JSX.Element {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  console.log("router: ", pathname);
+  console.log("router: ", router);
   const handleSubmit = async (e: React.SyntheticEvent | React.FormEvent) => {
     e.preventDefault();
     const formDataDTO = {
       ...formData,
-      password: await hashFunction(formData.password),
     };
     
     const loginUser = await login(formDataDTO);
     loginUser[1] && localStorage.setItem("image", JSON.stringify(loginUser[1]?.picture));
     loginUser[1] && localStorage.setItem("image_type", JSON.stringify(loginUser[1]?.image_type));
 
-    
-    return loginUser?.access_token ? router.push("/") : null;
+    console.log("login: ", loginUser);
+      
+    return loginUser[0]?.access_token ?  router.push("/") : null;
   };
 
   return (
