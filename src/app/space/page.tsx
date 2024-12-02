@@ -1,6 +1,9 @@
 import React from "react";
 import "./chatRoom.css";
 import dynamic from "next/dynamic";
+import { cookies } from 'next/headers'
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
+ 
 // import SpaceComponent from "@/src/routes/space";
 const SpaceComponent = dynamic(() => import('@/src/routes/space'), {
   ssr: false,
@@ -8,11 +11,19 @@ const SpaceComponent = dynamic(() => import('@/src/routes/space'), {
 
 let fuck = "fuck";
 
+export function userCokie(): RequestCookie | undefined {
+  const cookieStore = cookies()
+  const theme = cookieStore.get('user')
+  return theme
+}
 function ChatRoom() {
+ 
+  const cookie = userCokie()
+   
   fuck += " chatRoom";
   return (
     <div className="body-container">
-      <SpaceComponent />
+      <SpaceComponent cookie={cookie} />
     </div>
   );
 }

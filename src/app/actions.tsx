@@ -56,8 +56,7 @@ export async function createCookie(data: any) {
     path: data.path ? data.path : "/",
   });
 }
-
-function getCookie(name: string): RequestCookie | undefined {
+ function getCookie(name: string): RequestCookie | undefined {
   const cookiesList = cookies();
 
   const hasCookie = cookiesList.get(name);
@@ -77,7 +76,7 @@ export async function createUser(data: UserInfo) {
   };
 
   const response = await fetch(
-    `http://localhost:81/api/auth/signup`,
+    `http://localhost:8082/api/auth/signup`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -86,7 +85,6 @@ export async function createUser(data: UserInfo) {
   );
 
   const res: any = await response.json();
-  console.log("res: ", res);
   
   return res;
 }
@@ -99,14 +97,14 @@ export async function decodeToken(accessToken: string) {
 }
 
 export const login = async (data: { username: string; password: string }) => {
-  const response = await fetch("http://127.0.1.1:81/api/auth/signin", {
+  const response = await fetch("http://localhost:8082/api/auth/signin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 
   const res: any = await response.json();
-  console.log("res: ", res);
+
   if (res.status) return unauthorizedErrorCode
   const resToken = res[0] ? res[0] : res;
   
@@ -136,20 +134,20 @@ export const login = async (data: { username: string; password: string }) => {
 export const logout = async () => {
   const cookiesList = cookies();
   const hasCookie = cookiesList.get("access_token");
+  cookies().delete("access_token");
+  cookies().delete("user");
+  cookies().delete("profile_data");
+  
   if (!hasCookie) return;
 
   const response = await fetch(
-    "http://localhost:81/api/auth/logout",
+    "http://localhost:8082/api/auth/logout",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ access_token: hasCookie.value }),
     }
   );
-
-  cookies().delete("access_token");
-  cookies().delete("user");
-  cookies().delete("profile_data");
 
   return response;
 };

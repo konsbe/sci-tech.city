@@ -5,13 +5,13 @@ import styles from "./Navbar.module.css";
 import { Button } from "@mui/material";
 import { loginButton, logoutButton } from "./options";
 import { usePathname, useRouter } from "next/navigation";
-import { decodeToken, getCookie, logout } from "@/src/app/actions";
+import { decodeToken, logout } from "@/src/app/actions";
 import { AuthContext } from "@/src/providers/AuthProvider";
 import { WebSocketContext } from "@/src/providers/WebSocketProvider";
 import CallIcon from "@mui/icons-material/Call";
 import { ModalContext } from "@/src/providers/ModalProvider";
 
-export const Navbar = () => {
+export const Navbar = (props: any) => {
   const router = useRouter();
   const [accessToken, setAccessToken] = useState<string | any>(null); // Initialize state with null or an appropriate initial value
   const pathname = usePathname();
@@ -19,19 +19,9 @@ export const Navbar = () => {
   const { callChats }: any = useContext(WebSocketContext);
   const calls = [...new Set([...callChats])]
   const { closeModal } = useContext(ModalContext);
-
-  const fetchCookie = async () => {
-    try {
-      const result = await getCookie("access_token");
-      setAccessToken(result?.value ?? null);
-    } catch (error) {
-      return null;
-    }
-  };
-  // console.log("WebSocketContext: ", [...new Set([...callChats])]);
   
   useEffect(() => {
-    fetchCookie();
+    !accessToken && setAccessToken(props.cookie[0]?.value)
     decodeToken(accessToken).then((payload) => {
       if (!payload) return;
       setUserContextData({
@@ -70,7 +60,7 @@ export const Navbar = () => {
           onClick={() =>
             !accessToken
               ? router.push("/login")
-              : logout().then(() => router.push("/login", pathname ))}
+              : logout().then(() => router.push("/login" ))}
           sx={{ my: 2, color: "white" }}
           className={styles.colorButtons}>
           {!accessToken ? loginButton[0].icon : logoutButton[0].icon}

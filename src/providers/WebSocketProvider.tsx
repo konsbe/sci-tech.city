@@ -1,6 +1,5 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import Cookies from 'js-cookie';
 import { AuthContext } from "../providers/AuthProvider";
 import SockJS from "sockjs-client";
 import { CompatClient, Stomp } from "@stomp/stompjs";
@@ -9,10 +8,11 @@ import { EnumStatus, IMessage, TypeChats } from "../interfaces/chat";
 // Create a context for the modal
 const WebSocketContext = createContext<any>(null);
 let stompClient: CompatClient | null = null;
-const socketURL = "http://localhost:8083/api/websocket/";
+const socketURL = "http://localhost:8083/ws/";
 
-const WebSocketProvider = ({ children }: any) => {
-  const [cookie, setCookie] = useState<string | null>(null);
+const WebSocketProvider = ({ children, ...props }: any) => {
+  
+  const [cookie, setCookie] = useState<string | null>(props?.cookie);
   const [callChats, setCallChats] = useState<any[]>([]);
   const [callAccepted, setCallAccepted] = useState<string>();
   const [callEnded, setCallEnded] = useState<string>("");
@@ -34,16 +34,16 @@ const WebSocketProvider = ({ children }: any) => {
     status: EnumStatus[EnumStatus.MESSAGE],
   });
   
-  const fetchCookie = async () => {
-    try {
+  // const fetchCookie = async () => {
+  //   try {
       
-      const result = await getCookie("access_token");
+  //     const result = await getCookie("access_token");
       
-      setCookie(result?.value ?? null);
-    } catch (error) {
-      return null;
-    }
-  };
+  //     setCookie(result?.value ?? null);
+  //   } catch (error) {
+  //     return null;
+  //   }
+  // };
 
   const connect = () => {
     try {
@@ -54,16 +54,20 @@ const WebSocketProvider = ({ children }: any) => {
         stompClient.debug = () => {};
         // stompClient = over(socket);
         // let stompClient = Stomp.client(socketURL);
-
+        console.log("stompClient: ", stompClient);
+        console.log("userContextData: ", userContextData);
+        
         stompClient.connect({}, onConnected, onError);
       }
     } catch (error) {
       console.error("Error connecting to WebSocket server:", error);
     }
   };
-
+  
   const onConnected = () => {
     stompClient?.subscribe("/chatroom/public", onMessageReceived);
+    console.log("stompClientstompClient: ", stompClient);
+    
     stompClient?.subscribe(
       "/user/" + userContextData.username + "/private",
       onPrivateMessageReceived
@@ -78,7 +82,7 @@ const WebSocketProvider = ({ children }: any) => {
       date: new Date(),
       receiverName: "",
       status: EnumStatus[EnumStatus.JOIN],
-    };
+    };    
 
     // stompClient?.send("/app/chat.message", {}, JSON.stringify(chatMessage));
     stompClient?.send("/chatroom/public", {}, JSON.stringify(chatMessage));
@@ -285,13 +289,13 @@ const WebSocketProvider = ({ children }: any) => {
 
   useEffect(() => {
     
-    fetchCookie();
+    // fetchCookie();
     
     if (typeof window !== "undefined") {
-      const myCookie = Cookies.get(); // Replace with your cookie name
-      console.log("cookies: ", myCookie);
+      // const myCookie = Cookies.get(); // Replace with your cookie name
+      // console.log("cookies: ", myCookie);
 
-      connect();
+      cookie && connect();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userContextData]);
@@ -307,6 +311,7 @@ const WebSocketProvider = ({ children }: any) => {
     setMessageData,
     handlePushMessage,
     cookie,
+    setCookie,
     sendValue,
     callAccepted,
     setCallAccepted,

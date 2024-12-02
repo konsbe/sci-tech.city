@@ -11,8 +11,9 @@ import CallIcon from "@mui/icons-material/Call";
 import { WebSocketContext } from "../providers/WebSocketProvider";
 import VideoComponent from "../components/VideoComponent";
 import { WebRTCContext } from "../providers/WebRTCProvider";
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
-export const SpaceComponent = () => {
+export const SpaceComponent = ({cookie }:{cookie: RequestCookie | undefined}) => {
   const { userContextData, _ }: any = useContext(AuthContext);
   const {
     callData,
@@ -21,7 +22,6 @@ export const SpaceComponent = () => {
     messageData,
     setMessageData,
     handlePushMessage,
-    cookie,
   }: any = useContext(WebSocketContext);
   const {
     remoteStream,
