@@ -9,7 +9,6 @@ function CreateRoom() {
   const [room, setRoom] = useState<string>("");
   const [publicChat, setPublicChat] = useState<boolean>(true);
   const handleClick = () => {
-    console.log("handleClick: ", room, publicChat);
   };
 
   return (

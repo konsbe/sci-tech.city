@@ -4,7 +4,6 @@ import { getProjects, GetProjectsResponse } from "../actions";
 
 async function TaskManagerRouter() {
   const projects: GetProjectsResponse = await getProjects();
-  console.log("projects: ", projects);
   
   return <ProjectManager projects={projects} />;
 }

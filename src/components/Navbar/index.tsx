@@ -26,7 +26,7 @@ export const Navbar = (props: any) => {
       if (!payload) return;
       setUserContextData({
         ...userContextData,
-        firstName: payload?.family_name || "",
+        firstName: payload?.preferred_username || "",
         lastName: payload?.given_name || "",
         email: payload?.email || "",
         username: payload?.preferred_username || "",

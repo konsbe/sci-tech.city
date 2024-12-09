@@ -74,7 +74,6 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
   useEffect(() => {
     if (callData.receiverName === userContextData.username) return;
     if (!privateChats[`${callData.receiverName}`]?.length) return;
-    console.log("effect1");
     
     // if(!callData.receiverName || !callData.receiverName) return;
     
@@ -94,7 +93,6 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
   //   useEffect(() => {
   //     if (callData.receiverName === userContextData.username) return;
   //     if (!privateChats[`${callData.receiverName}`]?.length) return;
-  //     console.log("effect2");
     
   //   handleReceiverAnswer(
   //     privateChats[`${callData.receiverName}`][
@@ -116,7 +114,6 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
 
 
   useEffect(() => {
-    console.log("callEnded: ", callEnded);
     if (!callEnded) return;
     //TODO: fix the infinitive loop that seCallEnded is causing
     // if(callEnded === "") return;
@@ -128,7 +125,6 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
       callerName: "",
       receiverName: "",
     })
-    console.log("callEndedcallEndedcallEndedcallEndedcallEnded");
     
     callEnded && closeCallOnClick(callEnded, []);
     return () => {
@@ -356,6 +352,7 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
   };
 
   const answerButtonOnClick = async (room: string, rooms: any) => {
+    
     if(!pc.current) return;
     try {
       // Parse the offer received via WebSocket
@@ -455,9 +452,6 @@ const WebRTCProvider: React.FC<React.PropsWithChildren> = ({
       // Parse the answer message
       const { answer, user, type }: { answer: RTCSessionDescriptionInit | null; user: any; type: RTCSdpType | "END-CALL" } =
         JSON.parse(answerMessage);
-      console.log("answer", answer);        
-      console.log("user: ", user);
-      console.log("type: ", type); 
       if(!answer || answer === undefined) return;   
       if ((!answer || answer === undefined ) && (!type || type !== "END-CALL")) {
         console.error(`Invalid answer type: ${type} received from user: ${user}`);

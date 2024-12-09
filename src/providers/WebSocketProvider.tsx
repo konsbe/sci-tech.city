@@ -9,7 +9,7 @@ import { EnumStatus, IMessage, TypeChats } from "../interfaces/chat";
 const WebSocketContext = createContext<any>(null);
 let stompClient: CompatClient | null = null;
 const socketURL = "http://localhost:8083/ws/";
-
+let prevPayload ='';
 const WebSocketProvider = ({ children, ...props }: any) => {
   
   const [cookie, setCookie] = useState<string | null>(props?.cookie);
@@ -50,12 +50,10 @@ const WebSocketProvider = ({ children, ...props }: any) => {
       if (userContextData.username) {
         const socket = new SockJS(socketURL);
         stompClient = Stomp.over(socket);
-
+        
         stompClient.debug = () => {};
         // stompClient = over(socket);
         // let stompClient = Stomp.client(socketURL);
-        console.log("stompClient: ", stompClient);
-        console.log("userContextData: ", userContextData);
         
         stompClient.connect({}, onConnected, onError);
       }
@@ -65,8 +63,9 @@ const WebSocketProvider = ({ children, ...props }: any) => {
   };
   
   const onConnected = () => {
+    if (privateChats[userContextData.username]) return;
     stompClient?.subscribe("/chatroom/public", onMessageReceived);
-    console.log("stompClientstompClient: ", stompClient);
+    
     
     stompClient?.subscribe(
       "/user/" + userContextData.username + "/private",
@@ -105,7 +104,7 @@ const WebSocketProvider = ({ children, ...props }: any) => {
   const onMessageReceived = (payload: any) => {
     let payloadData = JSON.parse(payload.body);
     if (!payloadData) return;
-
+    
     switch (payloadData.status) {
       case EnumStatus[EnumStatus.JOIN]:
         payloadData?.connctedUsers?.map((entry: string) => {
@@ -150,7 +149,6 @@ const WebSocketProvider = ({ children, ...props }: any) => {
         break;
       case EnumStatus[EnumStatus.CALLENDED]:
           setCallAccepted("");
-          console.log("here called 2");
           
           setCallEnded(callData.receiverName);
           
@@ -164,7 +162,9 @@ const WebSocketProvider = ({ children, ...props }: any) => {
   const onPrivateMessageReceived = async (payload: any) => {
     let payloadData = JSON.parse(payload.body);
     if (!payloadData) return;
-    
+    if (payload === prevPayload) return;
+    prevPayload = payload;
+
     if (payloadData.status == EnumStatus[EnumStatus.CALLOFFER]) {
       setCallData((prev: any) => {
         return {
@@ -211,10 +211,7 @@ const WebSocketProvider = ({ children, ...props }: any) => {
     
     if (payloadData.status == EnumStatus[EnumStatus.CALLENDED]) {
       setCallAccepted("");
-      console.log("here called");
       setCallEndedFlag((prev: boolean) => {return !prev})
-      console.log("onPrivateMessageReceived payloadData.senderName: ", payloadData);
-      console.log("onPrivateMessageReceived callEnded: ", callEnded);
       
       setCallEnded(payloadData.senderName);
       const obj: any = JSON.parse(payloadData.message);
@@ -244,6 +241,7 @@ const WebSocketProvider = ({ children, ...props }: any) => {
     messageReceiverName: string = messageData.receiverName,
     messageStatus: string = EnumStatus[EnumStatus.MESSAGE]
   ) => {
+    
     if (stompClient) {
       let chatMessage = {
         senderName: userContextData.username,
@@ -293,8 +291,7 @@ const WebSocketProvider = ({ children, ...props }: any) => {
     
     if (typeof window !== "undefined") {
       // const myCookie = Cookies.get(); // Replace with your cookie name
-      // console.log("cookies: ", myCookie);
-
+      
       cookie && connect();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

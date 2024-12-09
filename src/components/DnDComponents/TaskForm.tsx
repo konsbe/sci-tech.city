@@ -19,7 +19,6 @@ export default function TaskForm({
   onSubmitTaskData: (dt: Task) => void;
 }) {
   const { openModal, closeModal } = useContext(ModalContext);
-  console.log("moment: ", moment(Number(taskData.starting_date)).utc().format("YYYY-MM-DD"));
   
   return (
     <div className="card flex-col-between">

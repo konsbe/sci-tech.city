@@ -4,8 +4,6 @@ import React, { useCallback, useEffect, useState } from "react";
 
 const ChatForm = ({ userProps, handlePushMessage, videoStream }: any) => {
 
-
-
   return (
     <div className="chat-form">
       <textarea

@@ -65,6 +65,7 @@ export async function createCookie(data: any) {
 }
 
 export async function createUser(data: UserInfo) {
+  const clearCookies = cleanCookies(cookies().getAll())
   
   const reqBody = {
     user_id: Date.now(),
@@ -76,7 +77,7 @@ export async function createUser(data: UserInfo) {
   };
 
   const response = await fetch(
-    `http://localhost:8082/api/auth/signup`,
+    `http://localhost:8082/api/keycloak-service/signup`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -88,7 +89,17 @@ export async function createUser(data: UserInfo) {
   
   return res;
 }
+async function cleanCookies(ckieLiest: RequestCookie[]) {
+  
+  if (ckieLiest.length > 0 ) {
+    ckieLiest.forEach((ckie) => {cookies().delete(ckie.name)})
+  }
+  return
+}
 export async function decodeToken(accessToken: string) {
+  
+  if (!accessToken || accessToken === undefined) return;
+
   const parts = accessToken?.split(".");
   if (!parts) return;
   const payload = await JSON.parse(atob(parts[1]));
@@ -97,12 +108,13 @@ export async function decodeToken(accessToken: string) {
 }
 
 export const login = async (data: { username: string; password: string }) => {
-  const response = await fetch("http://localhost:8082/api/auth/signin", {
+  const clearCookies = cleanCookies(cookies().getAll())
+
+  const response = await fetch("http://localhost:8082/api/keycloak-service/signin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-
   const res: any = await response.json();
 
   if (res.status) return unauthorizedErrorCode
@@ -134,9 +146,8 @@ export const login = async (data: { username: string; password: string }) => {
 export const logout = async () => {
   const cookiesList = cookies();
   const hasCookie = cookiesList.get("access_token");
-  cookies().delete("access_token");
-  cookies().delete("user");
-  cookies().delete("profile_data");
+  const clearCookies = cleanCookies(cookies().getAll())
+
   
   if (!hasCookie) return;
 

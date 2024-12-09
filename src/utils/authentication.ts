@@ -3,7 +3,7 @@ import { ErrorResponse } from "../app/actions";
 
 async function setupKeycloakClient() {
   const keycloakIssuer = await Issuer.discover("https://accounts.google.com");
-  console.log('Discovered issuer %s %O', keycloakIssuer.issuer, keycloakIssuer.metadata);
+  console.info('Discovered issuer %s %O', keycloakIssuer.issuer, keycloakIssuer.metadata);
   
   const client = new keycloakIssuer.Client({
     client_id: "sci-tech.city",

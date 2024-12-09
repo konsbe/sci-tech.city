@@ -51,13 +51,14 @@ const AuthProvider: React.FC<any> = ({ children, ...props }: any) => {
   useEffect(() => {
 
     if (props.cookie[0]?.value) {
+      
       // Assuming the cookie contains user information in JSON format 
       setUserContextData((prev) => {
         return {
           ...prev,
           lastName: authCooieDecode?.family_name || '',
           email:authCooieDecode?.email || '',
-          username: authCooieDecode?.name || '',
+          username: authCooieDecode?.preferred_username || '',
           firstName:authCooieDecode?.preferred_username || '',
           cookie: props.cookie[0]?.value || '',
         };
