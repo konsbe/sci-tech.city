@@ -111,7 +111,6 @@
 
   // const sendStreams = useCallback(() => {
   //   localStream?.getTracks().forEach((track: MediaStreamTrack) => {
-  //     console.log("track: ", track);
 
   //     peer?.peer?.addTrack(track, localStream);
   //   });
@@ -153,7 +152,6 @@
   // );
 
   // const onPrivateMessage = async (payload: any) => {
-  //   console.log("newanswer: ", payload);
   //   let payloadData = JSON.parse(payload.body);
   //   if (!payloadData) return;
 
@@ -169,11 +167,9 @@
   //   }
   //   if (payloadData.message.includes('"type":"answer"')) {
   //     const obj: any = JSON.parse(payloadData.message);
-  //     console.log("obj: ", obj);
   //     sendStreams();
   //     if (peer?.peer?.signalingState !== "have-local-offer") {
   //       // Ensure that the peer connection is in the correct state before setting the remote description.
-  //       console.log(
   //         "Peer connection not in the right state for setting remote description"
   //       );
   //       return;
@@ -182,7 +178,6 @@
   //     try {
   //       const offerDescription = obj.offer;
   //       const ans = await peer.setLocalDescription(offerDescription);
-  //       console.log("Remote description set successfully", ans);
   //       sendStreams();
   //     } catch (error) {
   //       console.error("Error setting remote description:", error);
@@ -272,7 +267,6 @@
   // };
 
   // const onError = (err: any) => {
-  //   console.log("err: ", err);
   // };
 
   // useEffect(() => {
